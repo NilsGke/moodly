@@ -1,0 +1,7 @@
+{
+  "name": "moodly",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react"
+}
