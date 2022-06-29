@@ -1,0 +1,6 @@
+{
+	"appId": "io.ionic.starter",
+	"appName": "moodly",
+	"webDir": "build",
+	"bundledWebRuntime": false
+}
