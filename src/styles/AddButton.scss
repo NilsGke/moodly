@@ -1,0 +1,16 @@
+@use "./theme";
+
+#addButton {
+    height: 60px;
+    width: 60px;
+    border-radius: 100%;
+    position: fixed;
+    bottom: 30px;
+    left: calc(50% - 30px);
+    border: none;
+    background-color: theme.$color-primary;
+    svg {
+        height: 30px;
+        width: 30px;
+    }
+}

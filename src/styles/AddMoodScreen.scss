@@ -1,0 +1,32 @@
+@use "./theme.scss";
+
+#addMoodScreen {
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    backdrop-filter: blur(10px);
+    transition: opacity 0.4s ease-in-out;
+    opacity: 1;
+    top: 0;
+
+    #window {
+        transition: top 0.4s ease-in-out;
+        position: absolute;
+        height: 80vh;
+        width: 100%;
+        background-color: theme.$color-dark-tint;
+        border-radius: 20px 20px 0 0;
+        padding: 20px;
+        top: 20vh;
+        // box-shadow: 0 0 30px rgb(43, 43, 43);
+    }
+
+    &.hidden {
+        pointer-events: none;
+        opacity: 0;
+        #window {
+            pointer-events: auto;
+            top: 100vh;
+        }
+    }
+}

@@ -1,0 +1,19 @@
+@use "./theme";
+
+#cardContainer {
+    height: auto;
+    overflow: scroll;
+    #cardList {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+    }
+}
+
+.dayCard {
+    min-height: 200px;
+    background: theme.$color-dark-tint;
+    border-radius: 10px;
+    padding: 20px;
+}
