@@ -4,6 +4,9 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: "-apple-system", "BlinkMacSystemFont", '"Segoe UI"', "Roboto",
+        '"Helvetica Neue"', "Arial", "sans-serif", '"Apple Color Emoji"',
+        '"Segoe UI Emoji"', '"Segoe UI Symbol"';
 }
 
 html,
@@ -15,6 +18,20 @@ body,
 }
 
 #page {
-    height: 100%;
+    // height: 100%;
+    max-height: calc(100vh - 56px);
+    overflow: scroll;
     width: 100%;
+}
+
+.MuiBottomNavigation-root {
+    bottom: 0;
+    position: fixed;
+    width: 100vw;
+    a,
+    button {
+        background-color: black;
+        color: white;
+        max-width: unset;
+    }
 }
