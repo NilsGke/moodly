@@ -1,6 +1,5 @@
-import { Storage } from "@capacitor/storage";
 import React, { useEffect, useState } from "react";
-import { Link, RouteComponentProps } from "react-router-dom";
+import { RouteComponentProps } from "react-router-dom";
 import "../styles/DayScreen.scss";
 import MoodChart from "../components/MoodChart";
 import { getMoods, moodColors, moodType, removeMood } from "../helpers/moods";
@@ -10,34 +9,24 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 
 const DayScreen = ({ match }: RouteComponentProps<{ date?: string }>) => {
-    const { date: dateFromUrl } = match.params;
+    const currentDay = dayjs(match.params.date, "DD.MM.YYYY");
 
-    const emptyDaysList: Array<moodType> = [];
-    const [moods, setMoods] = useState(emptyDaysList);
-    const [currentDay, setCurrentDay] = useState(
-        dayjs(dateFromUrl, "DD.MM.YYYY")
-    );
-
+    const [moods, setMoods] = useState<Array<moodType>>([]);
     const [refresh, setRefresh] = useState(false);
     const [highlightedHour, setHighlightedHour] = useState<null | number>(null);
 
     useEffect(() => {
-        let timer: NodeJS.Timeout;
         if (highlightedHour != null)
-            timer = setTimeout(() => setHighlightedHour(null), 50);
+            setTimeout(() => setHighlightedHour(null), 50);
     }, [highlightedHour]);
 
     useEffect(() => {
-        console.log("refresh");
-
-        getMoods()
-            .then((newMoods) =>
-                newMoods.filter((mood: moodType) =>
+        (async () => {
+            let newMoods = (await getMoods())
+                .filter((mood: moodType) =>
                     dayjs(mood.date).isSame(currentDay, "day")
                 )
-            )
-            .then((moods: Array<moodType>) =>
-                moods.sort(
+                .sort(
                     (a, b) =>
                         dayjs(a.time)
                             .set("date", 30)
@@ -49,12 +38,10 @@ const DayScreen = ({ match }: RouteComponentProps<{ date?: string }>) => {
                             .set("month", 11)
                             .set("year", 2004)
                             .valueOf()
-                )
-            )
-            .then((moods) => {
-                setMoods(moods);
-                setRefresh(false);
-            });
+                );
+            setMoods(newMoods);
+            setRefresh(false);
+        })();
     }, [refresh]);
 
     return (
@@ -124,7 +111,6 @@ const DayScreen = ({ match }: RouteComponentProps<{ date?: string }>) => {
                         </div>
                     ))}
             </div>
-            <Link to="/">back</Link>
         </div>
     );
 };
