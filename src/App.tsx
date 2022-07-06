@@ -1,49 +1,64 @@
-import { Storage } from "@capacitor/storage";
-import CardList from "./components/CardList";
-import { useEffect, useRef, useState } from "react";
-import { day } from "./components/DayCard";
-import { AddButton } from "./components/AddButton";
-import AddMoodScreen from "./components/AddMoodScreen";
+import React, { useState } from "react";
+import {
+    BrowserRouter,
+    Link,
+    Route,
+    Switch,
+    useLocation,
+} from "react-router-dom";
+import DayScreen from "./pages/DayScreen";
+import DaysList from "./pages/DaysList";
+import { BottomNavigation, BottomNavigationAction } from "@mui/material";
+
+// icons
+import Timeline from "@mui/icons-material/Timeline";
+import BarChartIcon from "@mui/icons-material/BarChart";
+
 import "./styles/App.scss";
+import Statistics from "./pages/Statistics";
 
-const App: React.FC = () => {
-    const emptyDaysList: Array<day> = [];
-    const [moods, setMoods] = useState(emptyDaysList);
-    const [refresh, setRefresh] = useState(true);
-
-    useEffect(() => {
-        Storage.get({ key: "moods" }).then((newMoods) =>
-            setMoods(
-                JSON.parse(
-                    newMoods.value ||
-                        '[{"id":"tsest","date":1656511298887,"mood":4,"text":"hello dies ist der Text"},{"id":"dtest","date":1656511298887,"mood":4,"text":"hello dies ist der Text"}, {"id":"ftest","date":1656511298887,"mood":4,"text":"hello dies ist der Text"},{"id":"gest","date":1656511298887,"mood":4,"text":"hello dies ist der Text"},{"id":"tehst","date":1656511298887,"mood":4,"text":"hello dies ist der Text"}, {"id":"tjest","date":1656511298887,"mood":4,"text":"hello dies ist der Text"}]'
-                )
-            )
-        );
-    }, [refresh]);
-
-    useEffect(() => {
-        Storage.set({ key: "moods", value: JSON.stringify(moods) });
-    }, [moods]);
-
-    type AddMoodScreenFunctions = React.ElementRef<typeof AddMoodScreen>;
-    const addMoodScreenRef = useRef<AddMoodScreenFunctions>(null);
+const App: React.FC = () => (
+    <BrowserRouter>
+        <Routes />
+    </BrowserRouter>
+);
+const Routes: React.FC = () => {
+    const [value, setValue] = useState(0);
+    const location = useLocation();
 
     return (
-        <div id="page">
-            <button
-                onClick={() =>
-                    Storage.clear().then(async () =>
-                        console.log(await Storage.get({ key: "moods" }))
-                    )
-                }
+        <>
+            <Switch>
+                <Route exact path="/" component={DaysList} />
+                <Route path="/days/:date" component={DayScreen} />
+                <Route path="/days" component={DaysList} />
+                <Route path="/stats" component={Statistics} />
+            </Switch>
+            <BottomNavigation
+                value={value}
+                onChange={(event, newValue) => {
+                    // setValue(newValue);
+                }}
             >
-                clear
-            </button>
-            <CardList days={moods} />
-            <AddButton addMoodScreenRef={addMoodScreenRef} />
-            <AddMoodScreen ref={addMoodScreenRef} />
-        </div>
+                <BottomNavigationAction
+                    component={Link}
+                    to="/"
+                    label="Timeline"
+                    value="timeline"
+                    icon={<Timeline />}
+                    className={location.pathname == "/" ? "selected" : ""}
+                    {...{ ...{ showLabel: location.pathname == "/" } }}
+                />
+                <BottomNavigationAction label="" icon={""} />
+                <BottomNavigationAction
+                    component={Link}
+                    to="/stats"
+                    label="Stats"
+                    icon={<BarChartIcon />}
+                    {...{ ...{ showLabel: location.pathname == "/stats" } }}
+                />
+            </BottomNavigation>
+        </>
     );
 };
 
