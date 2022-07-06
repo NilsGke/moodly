@@ -1,19 +1,12 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import dayjs from "dayjs";
 import { Link } from "react-router-dom";
+import { moodType } from "../helpers/moods";
 import "../styles/DayCard.scss";
 import MoodChart from "./MoodChart";
 
 export type dayType = {
     moods: Array<moodType>;
-    date: Date;
-};
-
-export type moodType = {
-    id: React.Key;
-    date: Date;
-    time: Date;
-    mood: 5 | 4 | 3 | 2 | 1 | null;
-    text: String;
+    date: number;
 };
 
 type props = {
@@ -21,20 +14,15 @@ type props = {
 };
 
 const DayCard: React.FC<props> = ({ day }) => {
-    const date = new Date(day.date);
-
     return (
         <div className="cardContainer">
             <Link
-                to={"/days/" + date.toLocaleDateString()}
+                to={"/days/" + dayjs(day.date).format("DD.MM.YYYY")}
                 style={{ textDecoration: "none" }}
             >
                 <div className="dayCard">
                     <h2 className="title">
-                        {["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"].at(
-                            date.getDay()
-                        )}{" "}
-                        {date.toLocaleDateString()}
+                        {dayjs(day.date).format("dd DD.MM")}
                     </h2>
                     <div className="chart">
                         <MoodChart day={day} />

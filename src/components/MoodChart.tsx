@@ -1,4 +1,5 @@
 import { Area, ComposedChart, XAxis } from "recharts";
+import { moodColors } from "../helpers/moods";
 import { dayType } from "./DayCard";
 
 type dataPoint = {
@@ -65,15 +66,12 @@ const MoodChart: React.FC<props> = ({ day, detailed, setHighlightedHour }) => {
         if (highest < (num || 0)) highest = num || highest;
         if (lowest > (num || 5)) lowest = num || lowest;
     });
-    let colors = ["#eb445a", "#f58432", "#ffc409", "#81cd46", "#2dd36f"].slice(
-        lowest - 1,
-        highest
-    );
-    const gradient = colors
+    moodColors.slice(lowest - 1, highest);
+    const gradient = moodColors
         .map((c, i) => (
             <stop
                 key={i}
-                offset={1 - (1 / (colors.length - 1)) * i}
+                offset={1 - (1 / (moodColors.length - 1)) * i}
                 stopColor={c}
                 stopOpacity={1}
             />
