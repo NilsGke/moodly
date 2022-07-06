@@ -1,25 +1,27 @@
 import { forwardRef, useImperativeHandle, useState } from "react";
 import "../styles/AddMoodScreen.scss";
 import { GrFormClose } from "react-icons/gr";
-import { moodType } from "./DayCard";
+import { addMood, moodType } from "../helpers/moods";
+import dayjs from "dayjs";
 
 export type functions = {
     open: () => void;
     close: () => void;
 };
 type props = {
-    addMood: (mood: moodType) => Promise<void>;
+    refresh: () => void;
 };
 
 const AddMoodScreen: React.ForwardRefRenderFunction<functions, props> = (
-    props,
+    { refresh },
     ref
 ) => {
     const [visible, setVisible] = useState(false);
 
-    const [date, setDate] = useState(new Date());
-    const [time, setTime] = useState(new Date());
-    const [mood, setMood] = useState<moodType["mood"]>(null);
+    const [date, setDate] = useState(dayjs().valueOf());
+    const [time, setTime] = useState(dayjs().valueOf());
+    const [mood, setMood] = useState<moodType["mood"]>(1);
+    const [moodSet, setMoodSet] = useState(false);
     const [text, setText] = useState("");
 
     useImperativeHandle(ref, () => ({
@@ -27,16 +29,16 @@ const AddMoodScreen: React.ForwardRefRenderFunction<functions, props> = (
         close: () => setVisible(false),
     }));
 
-    const save = () => {
-        props
-            .addMood({
-                date,
-                time,
-                mood: mood,
-                id: -1,
-                text,
-            })
-            .then(() => setVisible(false));
+    const save = async () => {
+        await addMood({
+            date,
+            time,
+            mood,
+            id: -1,
+            text,
+        });
+        setVisible(false);
+        refresh();
     };
 
     return (
@@ -50,7 +52,7 @@ const AddMoodScreen: React.ForwardRefRenderFunction<functions, props> = (
             <div id="window">
                 <div id="form">
                     <label htmlFor="dateInput" id="dateLabel">
-                        {date.toLocaleDateString()}
+                        {dayjs(date).format("dd DD.MM")}
                     </label>
                     <input
                         type="date"
@@ -59,28 +61,30 @@ const AddMoodScreen: React.ForwardRefRenderFunction<functions, props> = (
                         onChange={(e) =>
                             setDate(
                                 e.target.value != ""
-                                    ? new Date(e.target.value)
+                                    ? dayjs(e.target.value).valueOf()
                                     : date
                             )
                         }
                     />
 
                     <label htmlFor="timeInput" id="timeLabel">
-                        {time.toLocaleTimeString().slice(0, 5)}
+                        {dayjs(time).format("HH:MM")}
                     </label>
                     <input
                         type="time"
                         name="timeInput"
                         id="timeInput"
                         onChange={(e) => {
-                            console.log(e.target.value);
+                            console.log(
+                                e.target.value + " 30.11.2004",
+                                dayjs(
+                                    e.target.value + "T30.11.2004",
+                                    "HH:MMTDD.MM.YYYY"
+                                )
+                            );
                             setTime(
                                 e.target.value != ""
-                                    ? new Date(
-                                          date.toDateString() +
-                                              " " +
-                                              e.target.value
-                                      )
+                                    ? dayjs(e.target.value, "HH:MM").valueOf()
                                     : date
                             );
                         }}
@@ -88,114 +92,42 @@ const AddMoodScreen: React.ForwardRefRenderFunction<functions, props> = (
 
                     <div id="moods">
                         <div id="moodsContainer">
-                            <label
-                                htmlFor="moodInput1"
-                                className={
-                                    "moodCircle" +
-                                    (mood == 1 ? " selected" : "")
-                                }
-                            >
-                                1
-                            </label>
-                            <label
-                                htmlFor="moodInput2"
-                                className={
-                                    "moodCircle" +
-                                    (mood == 2 ? " selected" : "")
-                                }
-                            >
-                                2
-                            </label>
-                            <label
-                                htmlFor="moodInput3"
-                                className={
-                                    "moodCircle" +
-                                    (mood == 3 ? " selected" : "")
-                                }
-                            >
-                                3
-                            </label>
-                            <label
-                                htmlFor="moodInput4"
-                                className={
-                                    "moodCircle" +
-                                    (mood == 4 ? " selected" : "")
-                                }
-                            >
-                                4
-                            </label>
-                            <label
-                                htmlFor="moodInput5"
-                                className={
-                                    "moodCircle" +
-                                    (mood == 5 ? " selected" : "")
-                                }
-                            >
-                                5
-                            </label>
+                            {[1, 2, 3, 4, 5].map((a, i) => (
+                                <label
+                                    htmlFor={"moodInput" + a}
+                                    className={
+                                        "moodCircle" +
+                                        (moodSet && mood == a
+                                            ? " selected"
+                                            : "")
+                                    }
+                                >
+                                    {a}
+                                </label>
+                            ))}
                         </div>
 
                         <div id="moodsInputs">
-                            <input
-                                type="radio"
-                                name="moodInput"
-                                id="moodInput1"
-                                onChange={(e) =>
-                                    setMood(
-                                        parseInt(
-                                            e.target.id.replace("moodInput", "")
-                                        ) as moodType["mood"]
-                                    )
-                                }
-                            />
-                            <input
-                                type="radio"
-                                name="moodInput"
-                                id="moodInput2"
-                                onChange={(e) =>
-                                    setMood(
-                                        parseInt(
-                                            e.target.id.replace("moodInput", "")
-                                        ) as moodType["mood"]
-                                    )
-                                }
-                            />
-                            <input
-                                type="radio"
-                                name="moodInput"
-                                id="moodInput3"
-                                onChange={(e) =>
-                                    setMood(
-                                        parseInt(
-                                            e.target.id.replace("moodInput", "")
-                                        ) as moodType["mood"]
-                                    )
-                                }
-                            />
-                            <input
-                                type="radio"
-                                name="moodInput"
-                                id="moodInput4"
-                                onChange={(e) =>
-                                    setMood(
-                                        parseInt(
-                                            e.target.id.replace("moodInput", "")
-                                        ) as moodType["mood"]
-                                    )
-                                }
-                            />
-                            <input
-                                type="radio"
-                                name="moodInput"
-                                id="moodInput5"
-                                onChange={(e) =>
-                                    setMood(
-                                        parseInt(
-                                            e.target.id.replace("moodInput", "")
-                                        ) as moodType["mood"]
-                                    )
-                                }
-                            />
+                            {[1, 2, 3, 4, 5].map((a, i) => (
+                                <input
+                                    type="radio"
+                                    name={"moodInput"}
+                                    id={"moodInput" + a}
+                                    onChange={(e) => {
+                                        setMoodSet(true);
+                                        console.log(e.target.id);
+
+                                        setMood(
+                                            parseInt(
+                                                e.target.id.replace(
+                                                    "moodInput",
+                                                    ""
+                                                )
+                                            ) as moodType["mood"]
+                                        );
+                                    }}
+                                />
+                            ))}
                         </div>
                     </div>
 
@@ -223,6 +155,6 @@ const AddMoodScreen: React.ForwardRefRenderFunction<functions, props> = (
     );
 };
 
-const decToHex = (num: Number): String => num.toString(16).toUpperCase();
+const decToHex = (num: number): String => num.toString(16).toUpperCase();
 
 export default forwardRef(AddMoodScreen);
