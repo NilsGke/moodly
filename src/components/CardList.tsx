@@ -1,6 +1,7 @@
-import { useState } from "react";
-import DayCard, { dayType, moodType } from "./DayCard";
+import DayCard, { dayType } from "./DayCard";
 import "../styles/CardList.scss";
+import { moodType } from "../helpers/moods";
+import dayjs from "dayjs";
 type props = {
     moods: Array<moodType>;
 };
@@ -8,10 +9,8 @@ type props = {
 const CardList: React.FC<props> = ({ moods }) => {
     const days: Array<dayType> = [];
     moods.forEach((mood) => {
-        const foundDay = days.find(
-            (day) =>
-                new Date(day.date).toDateString() ===
-                new Date(mood.date).toDateString()
+        const foundDay = days.find((day) =>
+            dayjs(mood.date).isSame(day.date, "day")
         );
 
         if (foundDay !== undefined) {
