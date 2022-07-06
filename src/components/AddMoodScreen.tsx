@@ -94,6 +94,7 @@ const AddMoodScreen: React.ForwardRefRenderFunction<functions, props> = (
                         <div id="moodsContainer">
                             {[1, 2, 3, 4, 5].map((a, i) => (
                                 <label
+                                    key={a}
                                     htmlFor={"moodInput" + a}
                                     className={
                                         "moodCircle" +
@@ -110,6 +111,7 @@ const AddMoodScreen: React.ForwardRefRenderFunction<functions, props> = (
                         <div id="moodsInputs">
                             {[1, 2, 3, 4, 5].map((a, i) => (
                                 <input
+                                    key={a}
                                     type="radio"
                                     name={"moodInput"}
                                     id={"moodInput" + a}
