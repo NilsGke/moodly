@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import { Area, ComposedChart, XAxis } from "recharts";
 import { moodColors } from "../helpers/moods";
 import { dayType } from "./DayCard";
@@ -26,10 +27,7 @@ const MoodChart: React.FC<props> = ({ day, detailed, setHighlightedHour }) => {
         let [total, amount] = [0, 0];
 
         day.moods.forEach((mood) => {
-            const hour = parseInt(
-                new Date(mood.time).toLocaleTimeString().slice(0, 2)
-            );
-
+            const hour = dayjs(mood.time).hour();
             if (hour === num && mood.mood != null) {
                 total += mood.mood;
                 amount++;
