@@ -10,10 +10,24 @@
         gap: 30px;
     }
 }
+.cardContainer {
+    min-height: 200px;
+}
+
+$transTime: 0.3s;
 
 .dayCard {
     min-height: 200px;
+    height: 200px;
     background: theme.$color-dark-tint;
     border-radius: 10px;
     padding: 20px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    transition: all 0.3s ease-in-out;
+    width: calc(100vw - 40px);
+    h2 {
+        color: white;
+    }
 }
