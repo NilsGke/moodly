@@ -1,52 +1,59 @@
 import { Storage } from "@capacitor/storage";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, RouteComponentProps } from "react-router-dom";
-import DayCard, { moodType } from "../components/DayCard";
 import "../styles/DayScreen.scss";
 import MoodChart from "../components/MoodChart";
+import { getMoods, moodColors, moodType, removeMood } from "../helpers/moods";
+import dayjs from "dayjs";
+// icons
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 
 const DayScreen = ({ match }: RouteComponentProps<{ date?: string }>) => {
-    const { date } = match.params;
+    const { date: dateFromUrl } = match.params;
 
     const emptyDaysList: Array<moodType> = [];
     const [moods, setMoods] = useState(emptyDaysList);
     const [currentDay, setCurrentDay] = useState(
-        new Date(
-            date?.split(".")[1] +
-                "." +
-                date?.split(".")[0] +
-                "." +
-                date?.split(".")[2]
-        )
+        dayjs(dateFromUrl, "DD.MM.YYYY")
     );
-    const [refresh, setRefresh] = useState(true);
+
+    const [refresh, setRefresh] = useState(false);
     const [highlightedHour, setHighlightedHour] = useState<null | number>(null);
 
     useEffect(() => {
         let timer: NodeJS.Timeout;
-        if (highlightedHour != null) {
-            // @ts-ignore
-            clearTimeout(timer);
-            timer = setTimeout(() => setHighlightedHour(null), 2000);
-        }
+        if (highlightedHour != null)
+            timer = setTimeout(() => setHighlightedHour(null), 50);
     }, [highlightedHour]);
 
     useEffect(() => {
-        Storage.get({ key: "moods" })
+        console.log("refresh");
+
+        getMoods()
             .then((newMoods) =>
-                JSON.parse(newMoods.value || `[]`)
-                    .map((mood: moodType) => ({
-                        ...mood,
-                        date: new Date(mood.date),
-                    }))
-                    .filter(
-                        (mood: moodType) =>
-                            new Date(mood.date).toLocaleDateString() ===
-                            new Date(currentDay).toLocaleDateString()
-                    )
+                newMoods.filter((mood: moodType) =>
+                    dayjs(mood.date).isSame(currentDay, "day")
+                )
+            )
+            .then((moods: Array<moodType>) =>
+                moods.sort(
+                    (a, b) =>
+                        dayjs(a.time)
+                            .set("date", 30)
+                            .set("month", 11)
+                            .set("year", 2004)
+                            .valueOf() -
+                        dayjs(b.time)
+                            .set("date", 30)
+                            .set("month", 11)
+                            .set("year", 2004)
+                            .valueOf()
+                )
             )
             .then((moods) => {
                 setMoods(moods);
+                setRefresh(false);
             });
     }, [refresh]);
 
@@ -54,14 +61,11 @@ const DayScreen = ({ match }: RouteComponentProps<{ date?: string }>) => {
         <div id="page" className="dayView">
             <div id="header">
                 <h2 id="date">
-                    {["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"].at(
-                        currentDay.getDay()
-                    )}{" "}
-                    {currentDay.toLocaleDateString()}
+                    {currentDay.format("dd")} {currentDay.format("DD.MM")}
                 </h2>
                 <div id="detailedDayChart">
                     <MoodChart
-                        day={{ moods, date: currentDay }}
+                        day={{ moods, date: currentDay.valueOf() }}
                         setHighlightedHour={(hour: number) =>
                             setHighlightedHour(hour)
                         }
@@ -71,26 +75,52 @@ const DayScreen = ({ match }: RouteComponentProps<{ date?: string }>) => {
             </div>
             <div id="moodsList">
                 {moods
-                    .filter(
-                        (mood) =>
-                            new Date(mood.date).toLocaleDateString() ==
-                            currentDay.toLocaleDateString()
+                    .filter((mood) =>
+                        dayjs(mood.date).isSame(currentDay, "day")
                     )
                     .map((mood) => (
                         <div
-                            key={mood.id}
+                            key={mood.id as React.Key}
                             className={
                                 "moodEntry " +
-                                (highlightedHour ==
-                                new Date(mood.time).getHours()
+                                (highlightedHour == dayjs(mood.time).hour()
                                     ? "highlighted"
                                     : "")
                             }
                         >
-                            <span className="moodNumber">{mood.mood}</span>
-                            <span className="moodTime">
-                                {new Date(mood.time).toLocaleTimeString()}
+                            <span
+                                className="moodNumber"
+                                style={{
+                                    color: moodColors[mood.mood - 1],
+                                }}
+                            >
+                                {mood.mood}
                             </span>
+                            <span className="moodTime">
+                                {dayjs(mood.time).format("HH:MM")}
+                            </span>
+                            <div className="edit">
+                                <button
+                                    className="edit"
+                                    onClick={() => {
+                                        // TODO: edit menu
+                                        // might use AddMoodScreen
+                                    }}
+                                >
+                                    <EditIcon />
+                                </button>
+                                <button
+                                    className="delete"
+                                    onClick={() =>
+                                        removeMood(mood).then(() => {
+                                            console.log("asdf");
+                                            setRefresh(true);
+                                        })
+                                    }
+                                >
+                                    <DeleteIcon />
+                                </button>
+                            </div>
                         </div>
                     ))}
             </div>
