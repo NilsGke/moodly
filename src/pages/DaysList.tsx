@@ -1,9 +1,9 @@
 import { Storage } from "@capacitor/storage";
 import CardList from "../components/CardList";
 import { useEffect, useRef, useState } from "react";
-import { moodType } from "../components/DayCard";
 import { AddButton } from "../components/AddButton";
 import AddMoodScreen from "../components/AddMoodScreen";
+import { getMoods, moodType } from "../helpers/moods";
 
 const DaysList: React.FC = () => {
     const emptyDaysList: Array<moodType> = [];
@@ -12,35 +12,14 @@ const DaysList: React.FC = () => {
 
     useEffect(() => {
         if (refresh)
-            Storage.get({ key: "moods" })
-                .then((newMoods) =>
-                    setMoods(
-                        JSON.parse(newMoods.value || `[]`).map(
-                            (mood: moodType) => ({
-                                ...mood,
-                                date: new Date(mood.date),
-                            })
-                        )
-                    )
-                )
+            getMoods()
+                .then((moods) => setMoods(moods))
                 .then(() => setRefresh(false));
     }, [refresh]);
 
     useEffect(() => {
         Storage.set({ key: "moods", value: JSON.stringify(moods) });
     }, [moods]);
-
-    const addMood = (mood: moodType): Promise<void> => {
-        return new Promise((res) => {
-            let newId = 0;
-            while (moods.map((m) => m.id).includes(newId)) newId++;
-            mood.id = newId;
-            const newMoods = [...moods, mood];
-            Storage.set({ key: "moods", value: JSON.stringify(newMoods) })
-                .then(() => setRefresh(true))
-                .then(res);
-        });
-    };
 
     type AddMoodScreenFunctions = React.ElementRef<typeof AddMoodScreen>;
     const addMoodScreenRef = useRef<AddMoodScreenFunctions>(null);
@@ -51,7 +30,7 @@ const DaysList: React.FC = () => {
             <AddButton addMoodScreenRef={addMoodScreenRef} />
             <AddMoodScreen
                 ref={addMoodScreenRef}
-                addMood={(mood: moodType) => addMood(mood)}
+                refresh={() => setRefresh(true)}
             />
             <button
                 onClick={() =>
