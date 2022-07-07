@@ -68,26 +68,30 @@ const AddMoodScreen: React.ForwardRefRenderFunction<functions, props> = (
                     />
 
                     <label htmlFor="timeInput" id="timeLabel">
-                        {dayjs(time).format("HH:MM")}
+                        {dayjs(time).hour() + ":" + dayjs(time).minute()}
                     </label>
                     <input
                         type="time"
                         name="timeInput"
                         id="timeInput"
-                        onChange={(e) => {
-                            console.log(
-                                e.target.value + " 30.11.2004",
-                                dayjs(
-                                    e.target.value + "T30.11.2004",
-                                    "HH:MMTDD.MM.YYYY"
-                                )
-                            );
+                        onChange={(e) =>
                             setTime(
                                 e.target.value != ""
-                                    ? dayjs(e.target.value, "HH:MM").valueOf()
+                                    ? dayjs()
+                                          .hour(
+                                              parseInt(
+                                                  e.target.value.split(":")[0]
+                                              )
+                                          )
+                                          .minute(
+                                              parseInt(
+                                                  e.target.value.split(":")[1]
+                                              )
+                                          )
+                                          .valueOf()
                                     : date
-                            );
-                        }}
+                            )
+                        }
                     />
 
                     <div id="moods">
@@ -139,6 +143,8 @@ const AddMoodScreen: React.ForwardRefRenderFunction<functions, props> = (
                         cols={30}
                         rows={10}
                         placeholder={"add some notes..."}
+                        onChange={(e) => setText(e.target.value)}
+                        value={text}
                     ></textarea>
 
                     <button
