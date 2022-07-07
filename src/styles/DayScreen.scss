@@ -6,14 +6,9 @@ $spaceBetween: 20px;
 #page.dayView {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    // justify-content: center;
     align-items: center;
     padding: 20px;
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
 
     #header {
         width: 100%;
@@ -26,9 +21,6 @@ $spaceBetween: 20px;
         margin-bottom: $spaceBetween;
         #date {
             white-space: nowrap;
-        }
-
-        #detailedDayChart {
         }
     }
 
@@ -52,7 +44,7 @@ $spaceBetween: 20px;
 
             background: theme.$color-dark-tint;
 
-            transition: all 1s ease-in-out;
+            transition: all 0.2s ease-in-out;
 
             .moodNumber {
                 font-weight: 400;
@@ -79,9 +71,12 @@ $spaceBetween: 20px;
                     }
                 }
             }
-            &.highlighted {
+            &.active {
                 transition: 0.1s ease-in-out;
-                background-color: theme.$color-warning;
+                background-color: color.adjust(
+                    theme.$color-dark-tint,
+                    $lightness: 0
+                );
             }
         }
     }
