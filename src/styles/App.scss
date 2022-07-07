@@ -35,3 +35,19 @@ body,
         max-width: unset;
     }
 }
+
+button#undo {
+    $width: 140px;
+    height: 56px;
+    width: $width;
+    background-color: transparent;
+    border: none;
+    position: absolute;
+    bottom: 0;
+    z-index: 1;
+    left: calc((100vw / 2) - ($width / 2));
+    transition: bottom 0.3s ease-in-out;
+    &.hidden {
+        bottom: -70px;
+    }
+}
