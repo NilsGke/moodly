@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
-import { Area, ComposedChart, XAxis } from "recharts";
-import { moodColors } from "../helpers/moods";
+import { Area, ComposedChart, Line, XAxis } from "recharts";
+import { moodColors, moodType } from "../helpers/moods";
 import { dayType } from "./DayCard";
 
 type dataPoint = {
@@ -15,9 +15,15 @@ type props = {
     day: dayType;
     detailed?: boolean;
     setHighlightedHour?: (hour: number) => void;
+    activeMood?: moodType["id"];
 };
 
-const MoodChart: React.FC<props> = ({ day, detailed, setHighlightedHour }) => {
+const MoodChart: React.FC<props> = ({
+    day,
+    detailed,
+    setHighlightedHour,
+    activeMood,
+}) => {
     const hours = [
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
         20, 21, 22, 23,
@@ -25,12 +31,14 @@ const MoodChart: React.FC<props> = ({ day, detailed, setHighlightedHour }) => {
 
     const data: Array<dataPoint> = hours.map((num) => {
         let [total, amount] = [0, 0];
+        let active = false;
 
         day.moods.forEach((mood) => {
             const hour = dayjs(mood.time).hour();
             if (hour === num && mood.mood != null) {
                 total += mood.mood;
                 amount++;
+                if (mood.id == activeMood) active = true;
             }
         });
 
@@ -40,6 +48,7 @@ const MoodChart: React.FC<props> = ({ day, detailed, setHighlightedHour }) => {
             uv: average || null,
             pv: 5,
             amt: 5,
+            mk: active ? average : null,
         };
     });
 
@@ -97,7 +106,9 @@ const MoodChart: React.FC<props> = ({ day, detailed, setHighlightedHour }) => {
                     {gradient}
                 </linearGradient>
             </defs>
-            {detailed ? <XAxis markerUnits={"Uhr"} /> : null}
+            {detailed ? (
+                <XAxis markerUnits={"Uhr"} interval={1} fontSize={10} />
+            ) : null}
             <Area
                 type="monotone"
                 dataKey="uv"
@@ -106,10 +117,19 @@ const MoodChart: React.FC<props> = ({ day, detailed, setHighlightedHour }) => {
                 strokeWidth={3}
                 connectNulls={true}
                 fill="none"
+                isAnimationActive={false}
                 dot={
-                    detailed ? { fill: "#3dc2ff", r: 5, strokeWidth: 0 } : false
+                    detailed ? { fill: "#92949c", r: 5, strokeWidth: 0 } : false
                 }
             />
+            {detailed ? (
+                <Line
+                    dataKey="mk"
+                    fill="none"
+                    isAnimationActive={false}
+                    dot={{ fill: "#3880ff", r: 5, strokeWidth: 0 }}
+                />
+            ) : null}
 
             <Area
                 type="monotone"
@@ -117,6 +137,7 @@ const MoodChart: React.FC<props> = ({ day, detailed, setHighlightedHour }) => {
                 fillOpacity={0}
                 strokeWidth={0}
                 fill="none"
+                isAnimationActive={false}
             />
         </ComposedChart>
     );
