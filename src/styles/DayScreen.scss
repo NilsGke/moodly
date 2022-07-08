@@ -48,7 +48,10 @@ $spaceBetween: 20px;
 
             .moodNumber {
                 font-weight: 400;
-                background: color.adjust(theme.$color-dark-tint, $lightness: 5);
+                background: color.adjust(
+                    theme.$color-dark-tint,
+                    $lightness: 5%
+                );
                 justify-self: flex-start;
                 height: 25px;
                 width: 25px;
@@ -75,7 +78,7 @@ $spaceBetween: 20px;
                 transition: 0.1s ease-in-out;
                 background-color: color.adjust(
                     theme.$color-dark-tint,
-                    $lightness: 0
+                    $lightness: 10%
                 );
             }
         }
