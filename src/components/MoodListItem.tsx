@@ -19,8 +19,8 @@ const MoodListItem: React.FC<props> = ({
     return (
         <div
             key={mood.id as React.Key}
-            className={"moodEntry" + (activeMood == mood.id ? " active" : "")}
-            onClick={() => setActiveMood(mood.id == activeMood ? -1 : mood.id)}
+            className={"moodEntry" + (activeMood === mood.id ? " active" : "")}
+            onClick={() => setActiveMood(mood.id === activeMood ? -1 : mood.id)}
         >
             <span
                 className="moodNumber"
@@ -31,6 +31,7 @@ const MoodListItem: React.FC<props> = ({
                 {mood.mood}
             </span>
             <span className="moodTime">{dayjs(mood.time).format("HH:MM")}</span>
+            <span className="text">{mood.text}</span>
             <div className="edit">
                 <button
                     className="edit"

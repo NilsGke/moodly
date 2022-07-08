@@ -38,7 +38,7 @@ const MoodChart: React.FC<props> = ({
             if (hour === num && mood.mood != null) {
                 total += mood.mood;
                 amount++;
-                if (mood.id == activeMood) active = true;
+                if (mood.id === activeMood) active = true;
             }
         });
 
@@ -52,8 +52,8 @@ const MoodChart: React.FC<props> = ({
         };
     });
 
-    data.map((d, i) => {
-        if (i != 0)
+    data.forEach((d, i) => {
+        if (i !== 0)
             data[i - 1] = {
                 ...d,
                 pt: d.uv,
@@ -94,9 +94,9 @@ const MoodChart: React.FC<props> = ({
             data={data}
             onClick={(e) => {
                 if (
-                    e != null &&
-                    e.activeLabel != undefined &&
-                    setHighlightedHour != undefined
+                    e !== null &&
+                    e.activeLabel !== undefined &&
+                    setHighlightedHour !== undefined
                 )
                     setHighlightedHour(parseInt(e.activeLabel));
             }}
