@@ -58,7 +58,7 @@ const DayScreen = ({ match }: RouteComponentProps<{ date?: string }>) => {
 
     // add current state to timeLine (on first render)
     useEffect(() => {
-        addNewState(moods);
+        addNewState(getMoods());
     }, []);
 
     return (
