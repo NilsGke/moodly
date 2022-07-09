@@ -1,25 +1,17 @@
-import { Storage } from "@capacitor/storage";
 import CardList from "../components/CardList";
 import { useEffect, useRef, useState } from "react";
 import { AddButton } from "../components/AddButton";
 import AddMoodScreen from "../components/AddMoodScreen";
-import { getMoods, moodType } from "../helpers/moods";
+import { getMoods } from "../helpers/moods";
 
 const DaysList: React.FC = () => {
-    const emptyDaysList: Array<moodType> = [];
-    const [moods, setMoods] = useState(emptyDaysList);
+    const [moods, setMoods] = useState(getMoods());
     const [refresh, setRefresh] = useState(true);
 
     useEffect(() => {
-        if (refresh)
-            getMoods()
-                .then((moods) => setMoods(moods))
-                .then(() => setRefresh(false));
+        if (refresh) setMoods(getMoods());
+        setRefresh(false);
     }, [refresh]);
-
-    useEffect(() => {
-        Storage.set({ key: "moods", value: JSON.stringify(moods) });
-    }, [moods]);
 
     type AddMoodScreenFunctions = React.ElementRef<typeof AddMoodScreen>;
     const addMoodScreenRef = useRef<AddMoodScreenFunctions>(null);
@@ -32,15 +24,6 @@ const DaysList: React.FC = () => {
                 ref={addMoodScreenRef}
                 refresh={() => setRefresh(true)}
             />
-            <button
-                onClick={() =>
-                    Storage.clear().then(async () =>
-                        console.log(await Storage.get({ key: "moods" }))
-                    )
-                }
-            >
-                clear
-            </button>
         </div>
     );
 };
