@@ -21,7 +21,7 @@ const AddMoodScreen: React.ForwardRefRenderFunction<functions, props> = (
     const [date, setDate] = useState(dayjs().valueOf());
     const [time, setTime] = useState(dayjs().valueOf());
     const [mood, setMood] = useState<moodType["mood"]>(1);
-    const [moodSet, setMoodSet] = useState(false);
+    const [moodChosen, setMoodChosen] = useState(false);
     const [text, setText] = useState("");
 
     useImperativeHandle(ref, () => ({
@@ -39,6 +39,7 @@ const AddMoodScreen: React.ForwardRefRenderFunction<functions, props> = (
         });
         setVisible(false);
         refresh();
+        setMoodChosen(false);
     };
 
     return (
@@ -60,7 +61,7 @@ const AddMoodScreen: React.ForwardRefRenderFunction<functions, props> = (
                         id="dateInput"
                         onChange={(e) =>
                             setDate(
-                                e.target.value != ""
+                                e.target.value !== ""
                                     ? dayjs(e.target.value).valueOf()
                                     : date
                             )
@@ -76,7 +77,7 @@ const AddMoodScreen: React.ForwardRefRenderFunction<functions, props> = (
                         id="timeInput"
                         onChange={(e) =>
                             setTime(
-                                e.target.value != ""
+                                e.target.value !== ""
                                     ? dayjs()
                                           .hour(
                                               parseInt(
@@ -102,7 +103,7 @@ const AddMoodScreen: React.ForwardRefRenderFunction<functions, props> = (
                                     htmlFor={"moodInput" + a}
                                     className={
                                         "moodCircle" +
-                                        (moodSet && mood == a
+                                        (moodChosen && mood === a
                                             ? " selected"
                                             : "")
                                     }
@@ -120,9 +121,7 @@ const AddMoodScreen: React.ForwardRefRenderFunction<functions, props> = (
                                     name={"moodInput"}
                                     id={"moodInput" + a}
                                     onChange={(e) => {
-                                        setMoodSet(true);
-                                        console.log(e.target.id);
-
+                                        setMoodChosen(true);
                                         setMood(
                                             parseInt(
                                                 e.target.id.replace(
@@ -150,7 +149,7 @@ const AddMoodScreen: React.ForwardRefRenderFunction<functions, props> = (
                     <button
                         id="saveButton"
                         onClick={() => save()}
-                        disabled={mood == null}
+                        disabled={mood == null || !moodChosen}
                     >
                         Speichern
                     </button>
@@ -162,7 +161,5 @@ const AddMoodScreen: React.ForwardRefRenderFunction<functions, props> = (
         </div>
     );
 };
-
-const decToHex = (num: number): String => num.toString(16).toUpperCase();
 
 export default forwardRef(AddMoodScreen);
