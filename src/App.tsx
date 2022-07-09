@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
     BrowserRouter,
     Link,
@@ -6,21 +6,26 @@ import {
     Switch,
     useLocation,
 } from "react-router-dom";
-import DayScreen from "./pages/DayScreen";
-import DaysList from "./pages/DaysList";
-import { BottomNavigation, BottomNavigationAction } from "@mui/material";
+import {
+    BottomNavigation,
+    BottomNavigationAction,
+    CircularProgress,
+} from "@mui/material";
 
-import { StatusBar, Style } from "@capacitor/status-bar";
+import { StatusBar } from "@capacitor/status-bar";
 
+import "./styles/App.scss";
 // icons
 import Timeline from "@mui/icons-material/Timeline";
 import BarChartIcon from "@mui/icons-material/BarChart";
-
-import "./styles/App.scss";
+// pages
+import DayScreen from "./pages/DayScreen";
+import DaysList from "./pages/DaysList";
 import Statistics from "./pages/Statistics";
 
 // change dayjs to german
 import dayjs from "dayjs";
+import { loadMoodsFromStorage } from "./helpers/moods";
 require("dayjs/locale/de");
 var customParseFormat = require("dayjs/plugin/customParseFormat");
 dayjs.extend(customParseFormat);
@@ -35,8 +40,19 @@ const App: React.FC = () => (
     </BrowserRouter>
 );
 const Routes: React.FC = () => {
-    const [value, setValue] = useState(0);
     const location = useLocation();
+    const [gotData, setGotData] = useState(false);
+
+    useEffect(() => {
+        if (!gotData) loadMoodsFromStorage().then(() => setGotData(true));
+    }, [gotData]);
+
+    if (!gotData)
+        return (
+            <div id="loadingData">
+                <CircularProgress />
+            </div>
+        );
 
     return (
         <>
@@ -46,20 +62,15 @@ const Routes: React.FC = () => {
                 <Route path="/days" component={DaysList} />
                 <Route path="/stats" component={Statistics} />
             </Switch>
-            <BottomNavigation
-                value={value}
-                onChange={(event, newValue) => {
-                    // setValue(newValue);
-                }}
-            >
+            <BottomNavigation>
                 <BottomNavigationAction
                     component={Link}
                     to="/"
                     label="Timeline"
                     value="timeline"
                     icon={<Timeline />}
-                    className={location.pathname == "/" ? "selected" : ""}
-                    {...{ ...{ showLabel: location.pathname == "/" } }}
+                    className={location.pathname === "/" ? "selected" : ""}
+                    {...{ ...{ showLabel: location.pathname === "/" } }}
                 />
                 <BottomNavigationAction label="" icon={""} />
                 <BottomNavigationAction
@@ -67,7 +78,7 @@ const Routes: React.FC = () => {
                     to="/stats"
                     label="Stats"
                     icon={<BarChartIcon />}
-                    {...{ ...{ showLabel: location.pathname == "/stats" } }}
+                    {...{ ...{ showLabel: location.pathname === "/stats" } }}
                 />
             </BottomNavigation>
         </>
