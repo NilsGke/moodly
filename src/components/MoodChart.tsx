@@ -60,30 +60,46 @@ const MoodChart: React.FC<props> = ({
             };
     });
 
+    // this is to keep the lines in the center of the chart (if the full range (1 - 5) is not present)
     data.unshift({ ar: 1, pv: 5, amt: 5 });
     data.push({ ar: 5, pv: 5, amt: 5 });
 
-    data[0].uv = data[0].uv == null ? 3 : data[0].uv;
-    data[23].uv = data[23].uv == null ? 3 : data[23].uv;
+    // adds endpoints that have the same value as closest points
+    for (let i = 0; i < data.length; i++) {
+        const p = data[i];
+        if (data[0].uv == null && p.uv != null) data[0].uv = p.uv;
+
+        if (
+            data[data.length - 1].uv == null &&
+            data[data.length - 1 - i].uv != null
+        )
+            data[data.length - 1].uv = data[data.length - 1 - i].uv;
+    }
 
     let highest = 0,
         lowest = 5;
 
+    // assing highest and lowest
     data.map((d) => d.uv).forEach((num) => {
         if (highest < (num || 0)) highest = num || highest;
         if (lowest > (num || 5)) lowest = num || lowest;
     });
-    moodColors.slice(lowest - 1, highest);
-    const gradient = moodColors
-        .map((c, i) => (
-            <stop
-                key={i}
-                offset={1 - (1 / (moodColors.length - 1)) * i}
-                stopColor={c}
-                stopOpacity={1}
-            />
-        ))
-        .reverse();
+
+    const colors = moodColors.slice(lowest - 1, highest);
+
+    let gradient: JSX.IntrinsicElements["stop"][] = [];
+
+    if (colors.length > 1)
+        gradient = colors
+            .map((c, i) => (
+                <stop
+                    key={i}
+                    offset={1 - (1 / (colors.length - 1)) * i}
+                    stopColor={c}
+                    stopOpacity={1}
+                />
+            ))
+            .reverse();
 
     const chartId = "chartGradient" + new Date(day.date).getTime();
 
@@ -112,7 +128,11 @@ const MoodChart: React.FC<props> = ({
             <Area
                 type="monotone"
                 dataKey="uv"
-                stroke={`url(#${chartId})`}
+                stroke={
+                    gradient.length === 1
+                        ? `#${gradient[0]}`
+                        : `url(#${chartId})`
+                }
                 fillOpacity={1}
                 strokeWidth={3}
                 connectNulls={true}
