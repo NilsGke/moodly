@@ -1,20 +1,38 @@
-import { getMoods, moodType, setMoods } from "./moods";
+import { moodType, setMoods } from "./moods";
 
 
-export const history: Array<moodType[]> = [];
+export let timeLine: Array<moodType[]> = [];
 
-export const saveCurrentInHistory = () => {
-    return new Promise<void>(async (resolve, reject) => {
-        history.push(await getMoods())
-        resolve();
+let pointer: number = 0;
+
+export const getFutureLength = (): number => timeLine.length - (pointer + 1);
+export const getHistoryLength = (): number => pointer - 1
+
+const getCurrent = (): moodType[] => timeLine.slice()[pointer];
+
+export const deleteFuture = () => timeLine = timeLine.slice(0, pointer + 1);
+
+export const addNewState = (moods: moodType[]): void => {
+    deleteFuture();
+    timeLine.push([]);
+    pointer = (timeLine.length) - 1;
+    moods.forEach(mood => timeLine[pointer].push(mood));
+
+}
+
+export const goBackInTime = () => {
+    return new Promise<void>((resolve, reject) => {
+        if (pointer < 1) return reject();
+        pointer--;
+        setMoods(getCurrent()).then(resolve, reject);
     })
 }
 
-export const goBackInTime = () =>
-    new Promise<void>((resolve, reject) => {
-        if (history.length === 0) return reject();
-        const newMoods = history.pop() || [];
-        setMoods(newMoods).then(resolve, reject);
+export const backToTheFuture = () => {
+    return new Promise<void>((resolve, reject) => {
+        if (pointer == timeLine.length - 1) return reject();
+        pointer++;
+        setMoods(getCurrent()).then(resolve, reject);
     })
-
-export const clearHistory = (): void => { history.length = 0 };
+}
+export const clearTimeline = (): void => { timeLine.length = 0; pointer = -1; };
