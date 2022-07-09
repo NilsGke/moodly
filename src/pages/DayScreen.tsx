@@ -1,39 +1,65 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import "../styles/DayScreen.scss";
 import MoodChart from "../components/MoodChart";
 import { getMoods, moodType } from "../helpers/moods";
 import dayjs from "dayjs";
 import MoodListItem from "../components/MoodListItem";
+import {
+    goBackInTime,
+    backToTheFuture,
+    clearTimeline,
+    getFutureLength,
+    getHistoryLength,
+    timeLine,
+    addNewState,
+} from "../helpers/history";
+import DailyPieChart from "../components/DailyPieChart";
+// icons
 import UndoRoundedIcon from "@mui/icons-material/UndoRounded";
-import { history, clearHistory, goBackInTime } from "../helpers/history";
+import RedoRoundedIcon from "@mui/icons-material/RedoRounded";
 
 const DayScreen = ({ match }: RouteComponentProps<{ date?: string }>) => {
-    const currentDay = dayjs(match.params.date, "DD.MM.YYYY");
+    // eslint-disable-next-line
+    const [currentDay, setCurrentDay] = useState(
+        dayjs(match.params.date, "DD.MM.YYYY")
+    );
 
-    const [moods, setMoods] = useState<Array<moodType>>([]);
+    const initialMoods = getMoods()
+        .filter((mood: moodType) => dayjs(mood.date).isSame(currentDay, "day"))
+        .sort(
+            (a, b) =>
+                dayjs(a.time).hour() * 60 +
+                dayjs(a.time).minute() -
+                (dayjs(b.time).hour() * 60 + dayjs(b.time).minute())
+        );
+
+    const [moods, setMoods] = useState<Array<moodType>>(initialMoods);
     const [refresh, setRefresh] = useState(false);
     const [activeMood, setActiveMood] = useState<moodType["id"]>(-1);
 
     useEffect(() => {
-        (async () => {
-            let newMoods = (await getMoods())
-                .filter((mood: moodType) =>
-                    dayjs(mood.date).isSame(currentDay, "day")
-                )
-                .sort(
-                    (a, b) =>
-                        dayjs(a.time).hour() * 60 +
-                        dayjs(a.time).minute() -
-                        (dayjs(b.time).hour() * 60 + dayjs(b.time).minute())
-                );
-            setMoods(newMoods);
-            setRefresh(false);
-        })();
-    }, [refresh]);
+        let newMoods = getMoods()
+            .filter((mood: moodType) =>
+                dayjs(mood.date).isSame(currentDay, "day")
+            )
+            .sort(
+                (a, b) =>
+                    dayjs(a.time).hour() * 60 +
+                    dayjs(a.time).minute() -
+                    (dayjs(b.time).hour() * 60 + dayjs(b.time).minute())
+            );
+        setMoods(newMoods);
+        setRefresh(false);
+    }, [refresh, currentDay]);
 
     // clear history on first render
-    useEffect(clearHistory, []);
+    useEffect(clearTimeline, []);
+
+    // add current state to timeLine (on first render)
+    useEffect(() => {
+        addNewState(moods);
+    }, []);
 
     return (
         <>
@@ -49,7 +75,7 @@ const DayScreen = ({ match }: RouteComponentProps<{ date?: string }>) => {
                                 setActiveMood(
                                     moods.find(
                                         (mood: moodType) =>
-                                            dayjs(mood.time).hour() == hour
+                                            dayjs(mood.time).hour() === hour
                                     )?.id || -1
                                 );
                             }}
@@ -65,6 +91,7 @@ const DayScreen = ({ match }: RouteComponentProps<{ date?: string }>) => {
                         )
                         .map((mood) => (
                             <MoodListItem
+                                key={mood.id}
                                 activeMood={activeMood}
                                 mood={mood}
                                 setActiveMood={(id: moodType["id"]) =>
@@ -74,14 +101,37 @@ const DayScreen = ({ match }: RouteComponentProps<{ date?: string }>) => {
                             />
                         ))}
                 </div>
+                <div id="bottomChart">
+                    {moods.length !== 0 ? (
+                        <DailyPieChart moods={moods} />
+                    ) : null}
+                </div>
             </div>
-            <button
-                id="undo"
-                className={history.length == 0 ? "hidden" : ""}
-                onClick={() => goBackInTime().then(() => setRefresh(true))}
-            >
-                <UndoRoundedIcon />
-            </button>
+            <div id="undoButtons">
+                <button
+                    id="undo"
+                    className={getHistoryLength() < 0 ? "hidden" : ""}
+                    onClick={async () => {
+                        await goBackInTime();
+                        console.log(timeLine);
+                        setRefresh(true);
+                    }}
+                >
+                    <UndoRoundedIcon />
+                </button>
+                <button
+                    id="redo"
+                    className={getFutureLength() === 0 ? "hidden" : ""}
+                    onClick={async () => {
+                        await backToTheFuture();
+                        console.log(timeLine);
+
+                        setRefresh(true);
+                    }}
+                >
+                    <RedoRoundedIcon />
+                </button>
+            </div>
         </>
     );
 };
