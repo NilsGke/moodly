@@ -1,6 +1,6 @@
 import { Storage } from "@capacitor/storage";
 import dayjs from "dayjs"
-import { saveCurrentInHistory } from "./history";
+import { addNewState } from "./history";
 
 export type moodType = {
     id: number;
@@ -10,40 +10,47 @@ export type moodType = {
     text: string;
 };
 
-export const getMoods = (): Promise<Array<moodType>> =>
+let moods: moodType[] = [];
+
+export const getMoods = (): moodType[] => moods.slice();
+
+export const loadMoodsFromStorage = (): Promise<Array<moodType>> =>
     new Promise(async (res) => {
         const data = (await Storage.get({ key: "moods" })).value;
-        const moods = await JSON.parse(data || `[]`).map(
+        const newMoods: moodType[] = await JSON.parse(data || `[]`).map(
             (mood: moodType) => ({
                 ...mood,
                 date: dayjs(mood.date).valueOf(),
             })
         );
-        res(moods);
+        moods = newMoods;
+        res(newMoods);
     })
 
-export const setMoods = (moods: Array<moodType>): Promise<void> => {
+export const saveMoodsToStorage = (): Promise<void> => {
     return new Promise((res) =>
-        Storage.set({ key: "moods", value: JSON.stringify(moods) }).then(res)
+        Storage.set({ key: "moods", value: JSON.stringify(getMoods()) }).then(res)
     )
 }
 
-export const addMood = (mood: moodType): Promise<void> =>
-    new Promise(async (res) => {
-        await saveCurrentInHistory();
-        const moods = await getMoods();
-        mood.id = getFreeId(moods);
-        await Storage.set({ key: "moods", value: JSON.stringify([...moods, mood]) })
-        res();
-    });
+export const setMoods = (newMoods: Array<moodType>): Promise<void> => {
+    moods = newMoods;
+    return saveMoodsToStorage()
+}
 
-export const removeMood = (mood: moodType): Promise<void> =>
-    new Promise(async (res) => {
-        await saveCurrentInHistory();
-        const moods = (await getMoods()).filter(m => JSON.stringify(m) != JSON.stringify(mood));
-        await Storage.set({ key: "moods", value: JSON.stringify(moods) });
-        res();
-    })
+export const addMood = async (newMood: moodType): Promise<void> => {
+    const oldMoods = getMoods();
+    newMood.id = getFreeId(oldMoods);
+    moods = [...oldMoods, newMood]
+    return saveMoodsToStorage()
+}
+
+export const removeMood = (mood: moodType): Promise<void> => {
+    const oldMoods = getMoods();
+    const newMoods = oldMoods.filter(m => m.id !== mood.id)
+    addNewState(newMoods);
+    return setMoods(newMoods);
+}
 
 const getFreeId = (moods: Array<moodType>): number => {
     const taken = moods.map(m => m.id);
