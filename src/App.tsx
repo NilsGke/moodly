@@ -15,6 +15,8 @@ import {
 import { StatusBar } from "@capacitor/status-bar";
 
 import "./styles/App.scss";
+import "./styles/devStyles.scss";
+
 // icons
 import Timeline from "@mui/icons-material/Timeline";
 import BarChartIcon from "@mui/icons-material/BarChart";
@@ -56,12 +58,21 @@ const Routes: React.FC = () => {
 
     return (
         <>
-            <Switch>
-                <Route exact path="/" component={DaysList} />
-                <Route path="/days/:date" component={DayScreen} />
-                <Route path="/days" component={DaysList} />
-                <Route path="/stats" component={Statistics} />
-            </Switch>
+            <div
+                id="pageContainer"
+                className={
+                    process.env.NODE_ENV !== "production"
+                        ? "devMode"
+                        : "production"
+                }
+            >
+                <Switch>
+                    <Route exact path="/" component={DaysList} />
+                    <Route path="/days/:date" component={DayScreen} />
+                    <Route path="/days" component={DaysList} />
+                    <Route path="/stats" component={Statistics} />
+                </Switch>
+            </div>
             <BottomNavigation>
                 <BottomNavigationAction
                     component={Link}
