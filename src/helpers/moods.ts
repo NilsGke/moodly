@@ -45,6 +45,14 @@ export const addMood = async (newMood: moodType): Promise<void> => {
     return saveMoodsToStorage()
 }
 
+export const modifyMood = (modifiedMood: moodType): Promise<void> => {
+    moods = getMoods().map(m => {
+        if (m.id !== modifiedMood.id) return m;
+        else return modifiedMood;
+    });
+    return saveMoodsToStorage()
+}
+
 export const removeMood = (mood: moodType): Promise<void> => {
     const oldMoods = getMoods();
     const newMoods = oldMoods.filter(m => m.id !== mood.id)

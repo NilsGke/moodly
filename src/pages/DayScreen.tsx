@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import "../styles/DayScreen.scss";
 import MoodChart from "../components/MoodChart";
-import { getMoods, moodType } from "../helpers/moods";
+import { addMood, getMoods, modifyMood, moodType } from "../helpers/moods";
 import dayjs from "dayjs";
 import MoodListItem from "../components/MoodListItem";
 import {
@@ -18,6 +18,7 @@ import DailyPieChart from "../components/DailyPieChart";
 // icons
 import UndoRoundedIcon from "@mui/icons-material/UndoRounded";
 import RedoRoundedIcon from "@mui/icons-material/RedoRounded";
+import AddMoodScreen from "../components/AddMoodScreen";
 
 const DayScreen = ({ match }: RouteComponentProps<{ date?: string }>) => {
     // eslint-disable-next-line
@@ -37,6 +38,7 @@ const DayScreen = ({ match }: RouteComponentProps<{ date?: string }>) => {
     const [moods, setMoods] = useState<Array<moodType>>(initialMoods);
     const [refresh, setRefresh] = useState(false);
     const [activeMood, setActiveMood] = useState<moodType["id"]>(-1);
+    const [modifiedMood, setModifiedMood] = useState<moodType | null>(null);
 
     useEffect(() => {
         let newMoods = getMoods()
@@ -60,6 +62,33 @@ const DayScreen = ({ match }: RouteComponentProps<{ date?: string }>) => {
     useEffect(() => {
         addNewState(getMoods());
     }, []);
+
+    useEffect(() => {
+        if (modifiedMood !== null) {
+            const newMoods = moods.slice().map((m) => {
+                if (m.id !== modifiedMood.id) return m;
+                else {
+                    return modifiedMood;
+                }
+            });
+            setMoods(newMoods);
+        }
+    }, [modifiedMood]);
+
+    type AddMoodScreenFunctions = React.ElementRef<typeof AddMoodScreen>;
+    const addMoodScreenRef = useRef<AddMoodScreenFunctions>(null);
+
+    const editMood = () => {
+        if (modifiedMood !== null) {
+            const moodToModify = moods.find((m) => m.id === activeMood);
+            if (moodToModify != null) {
+                addMoodScreenRef.current?.setValues(moodToModify);
+                addMoodScreenRef.current?.open();
+            }
+        }
+    };
+
+    const saveEditedMood = (mood: moodType) => modifyMood(mood);
 
     return (
         <>
@@ -98,6 +127,9 @@ const DayScreen = ({ match }: RouteComponentProps<{ date?: string }>) => {
                                     setActiveMood(id)
                                 }
                                 refresh={() => setRefresh(true)}
+                                editMood={() => {
+                                    editMood();
+                                }}
                             />
                         ))}
                 </div>
@@ -113,7 +145,6 @@ const DayScreen = ({ match }: RouteComponentProps<{ date?: string }>) => {
                     className={getHistoryLength() < 0 ? "hidden" : ""}
                     onClick={async () => {
                         await goBackInTime();
-                        console.log(timeLine);
                         setRefresh(true);
                     }}
                 >
@@ -124,14 +155,22 @@ const DayScreen = ({ match }: RouteComponentProps<{ date?: string }>) => {
                     className={getFutureLength() === 0 ? "hidden" : ""}
                     onClick={async () => {
                         await backToTheFuture();
-                        console.log(timeLine);
-
                         setRefresh(true);
                     }}
                 >
                     <RedoRoundedIcon />
                 </button>
             </div>
+            <AddMoodScreen
+                ref={addMoodScreenRef}
+                refresh={() => setRefresh(true)}
+                customSaveFunction={(mood: moodType) => saveEditedMood(mood)}
+                change={(mood: moodType) => setModifiedMood(mood)}
+                closeHandler={() => {
+                    setActiveMood(-1);
+                    setRefresh(true);
+                }}
+            />
         </>
     );
 };

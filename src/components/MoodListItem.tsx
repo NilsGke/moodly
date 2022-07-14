@@ -8,6 +8,7 @@ type props = {
     activeMood: moodType["id"];
     setActiveMood: (mood: moodType["id"]) => void;
     refresh: () => void;
+    editMood: () => void;
 };
 
 const MoodListItem: React.FC<props> = ({
@@ -15,6 +16,7 @@ const MoodListItem: React.FC<props> = ({
     activeMood,
     setActiveMood,
     refresh,
+    editMood,
 }) => {
     return (
         <div
@@ -33,13 +35,7 @@ const MoodListItem: React.FC<props> = ({
             <span className="moodTime">{dayjs(mood.time).format("HH:MM")}</span>
             <span className="text">{mood.text}</span>
             <div className="edit">
-                <button
-                    className="edit"
-                    onClick={() => {
-                        // TODO: edit menu
-                        // might use AddMoodScreen
-                    }}
-                >
+                <button className="edit" onClick={() => editMood()}>
                     <EditIcon />
                 </button>
                 <button

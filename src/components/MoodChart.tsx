@@ -16,6 +16,7 @@ type props = {
     detailed?: boolean;
     setHighlightedHour?: (hour: number) => void;
     activeMood?: moodType["id"];
+    modifiedMood?: moodType;
 };
 
 const MoodChart: React.FC<props> = ({
@@ -23,6 +24,7 @@ const MoodChart: React.FC<props> = ({
     detailed,
     setHighlightedHour,
     activeMood,
+    modifiedMood,
 }) => {
     const hours = [
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
@@ -51,6 +53,7 @@ const MoodChart: React.FC<props> = ({
             mk: active ? average : null,
         };
     });
+    // console.log(day.moods);
 
     data.forEach((d, i) => {
         if (i !== 0)
