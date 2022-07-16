@@ -12,6 +12,8 @@ import {
     CircularProgress,
 } from "@mui/material";
 
+import { SharedElementContextProvider } from "react-shared-element-transition";
+
 import { StatusBar } from "@capacitor/status-bar";
 
 import "./styles/App.scss";
@@ -41,8 +43,9 @@ const App: React.FC = () => (
         <Routes />
     </BrowserRouter>
 );
+
 const Routes: React.FC = () => {
-    const location = useLocation();
+    const { pathname } = useLocation();
     const [gotData, setGotData] = useState(false);
 
     useEffect(() => {
@@ -66,22 +69,24 @@ const Routes: React.FC = () => {
                         : "production"
                 }
             >
-                <Switch>
-                    <Route exact path="/" component={DaysList} />
-                    <Route path="/days/:date" component={DayScreen} />
-                    <Route path="/days" component={DaysList} />
-                    <Route path="/stats" component={Statistics} />
-                </Switch>
+                <SharedElementContextProvider pathname={pathname}>
+                    <Switch>
+                        <Route exact path="/" component={DaysList} />
+                        <Route path="/days/:date" component={DayScreen} />
+                        <Route path="/days" component={DaysList} />
+                        <Route path="/stats" component={Statistics} />
+                    </Switch>
+                </SharedElementContextProvider>
             </div>
             <BottomNavigation>
                 <BottomNavigationAction
                     component={Link}
-                    to="/"
+                    to={pathname === "/stats" ? "/days" : "/"} // change destination to /days when coming from /stats to make the transition possible (with the opacity) (kinda janky solution but works)
                     label="Timeline"
                     value="timeline"
                     icon={<Timeline />}
-                    className={location.pathname === "/" ? "selected" : ""}
-                    {...{ ...{ showLabel: location.pathname === "/" } }}
+                    className={pathname === "/" ? "selected" : ""}
+                    {...{ ...{ showLabel: pathname === "/" } }}
                 />
                 <BottomNavigationAction label="" icon={""} />
                 <BottomNavigationAction
@@ -89,7 +94,7 @@ const Routes: React.FC = () => {
                     to="/stats"
                     label="Stats"
                     icon={<BarChartIcon />}
-                    {...{ ...{ showLabel: location.pathname === "/stats" } }}
+                    {...{ ...{ showLabel: pathname === "/stats" } }}
                 />
             </BottomNavigation>
         </>

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import "../styles/DayScreen.scss";
 import MoodChart from "../components/MoodChart";
-import { addMood, getMoods, modifyMood, moodType } from "../helpers/moods";
+import { getMoods, modifyMood, moodType } from "../helpers/moods";
 import dayjs from "dayjs";
 import MoodListItem from "../components/MoodListItem";
 import {
@@ -11,7 +11,6 @@ import {
     clearTimeline,
     getFutureLength,
     getHistoryLength,
-    timeLine,
     addNewState,
 } from "../helpers/history";
 import DailyPieChart from "../components/DailyPieChart";
@@ -19,8 +18,15 @@ import DailyPieChart from "../components/DailyPieChart";
 import UndoRoundedIcon from "@mui/icons-material/UndoRounded";
 import RedoRoundedIcon from "@mui/icons-material/RedoRounded";
 import AddMoodScreen from "../components/AddMoodScreen";
+import {
+    SharedElement,
+    useSharedElementContext,
+} from "react-shared-element-transition";
 
-const DayScreen = ({ match }: RouteComponentProps<{ date?: string }>) => {
+const DayScreen = ({
+    match,
+    location: { pathname },
+}: RouteComponentProps<{ date?: string }>) => {
     // eslint-disable-next-line
     const [currentDay, setCurrentDay] = useState(
         dayjs(match.params.date, "DD.MM.YYYY")
@@ -39,7 +45,6 @@ const DayScreen = ({ match }: RouteComponentProps<{ date?: string }>) => {
     const [refresh, setRefresh] = useState(false);
     const [activeMood, setActiveMood] = useState<moodType["id"]>(-1);
     const [modifiedMood, setModifiedMood] = useState<moodType | null>(null);
-
     useEffect(() => {
         let newMoods = getMoods()
             .filter((mood: moodType) =>
@@ -73,6 +78,8 @@ const DayScreen = ({ match }: RouteComponentProps<{ date?: string }>) => {
             });
             setMoods(newMoods);
         }
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [modifiedMood]);
 
     type AddMoodScreenFunctions = React.ElementRef<typeof AddMoodScreen>;
@@ -88,32 +95,62 @@ const DayScreen = ({ match }: RouteComponentProps<{ date?: string }>) => {
         }
     };
 
+    const { isTransitioning, activePathname } = useSharedElementContext();
+    const opacity = isTransitioning || activePathname !== pathname ? 0 : 1;
+
     const saveEditedMood = (mood: moodType) => modifyMood(mood);
 
     return (
         <>
             <div id="page" className="dayView">
-                <div id="header">
-                    <h2 id="date">
-                        {currentDay.format("dd")} {currentDay.format("DD.MM")}
-                    </h2>
-                    <div id="detailedDayChart">
-                        <MoodChart
-                            day={{ moods, date: currentDay.valueOf() }}
-                            setHighlightedHour={(hour: number) => {
-                                setActiveMood(
-                                    moods.find(
-                                        (mood: moodType) =>
-                                            dayjs(mood.time).hour() === hour
-                                    )?.id || -1
-                                );
-                            }}
-                            detailed={true}
-                            activeMood={activeMood}
-                        />
+                <div id="headerContainer">
+                    <div
+                        className="cardBackgroundContainer"
+                        style={{ opacity }}
+                    >
+                        <SharedElement
+                            id={
+                                "background" + dayjs(currentDay).format("DD.MM")
+                            }
+                            pathname={pathname}
+                        >
+                            <div className="cardBackground"></div>
+                        </SharedElement>
+                    </div>
+                    <div id="header" style={{ opacity }}>
+                        <SharedElement
+                            id={"title" + dayjs(currentDay).format("DD.MM")}
+                            pathname={pathname}
+                        >
+                            <h2 id="date">
+                                {currentDay.format("dd")}{" "}
+                                {currentDay.format("DD.MM")}
+                            </h2>
+                        </SharedElement>
+                        <div id="detailedDayChart" style={{ opacity }}>
+                            <SharedElement
+                                id={"chart" + dayjs(currentDay).format("DD.MM")}
+                                pathname={pathname}
+                            >
+                                <MoodChart
+                                    day={{ moods, date: currentDay.valueOf() }}
+                                    setHighlightedHour={(hour: number) => {
+                                        setActiveMood(
+                                            moods.find(
+                                                (mood: moodType) =>
+                                                    dayjs(mood.time).hour() ===
+                                                    hour
+                                            )?.id || -1
+                                        );
+                                    }}
+                                    detailed={true}
+                                    activeMood={activeMood}
+                                />
+                            </SharedElement>
+                        </div>
                     </div>
                 </div>
-                <div id="moodsList">
+                <div id="moodsList" style={{ opacity }}>
                     {moods
                         .filter((mood) =>
                             dayjs(mood.date).isSame(currentDay, "day")
@@ -133,7 +170,7 @@ const DayScreen = ({ match }: RouteComponentProps<{ date?: string }>) => {
                             />
                         ))}
                 </div>
-                <div id="bottomChart">
+                <div id="bottomChart" style={{ opacity }}>
                     {moods.length !== 0 ? (
                         <DailyPieChart moods={moods} />
                     ) : null}

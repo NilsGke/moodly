@@ -10,21 +10,45 @@ $spaceBetween: 20px;
     align-items: center;
     padding: 20px;
 
-    #header {
+    #headerContainer {
         width: 100%;
-        background: theme.$color-dark-tint;
-        padding: 30px;
         border-radius: $borderRadius;
-        display: flex;
-        align-items: center;
-        flex-direction: column;
         margin-bottom: $spaceBetween;
-        #date {
-            white-space: nowrap;
+        margin-top: 20px;
+        position: relative;
+
+        .cardBackgroundContainer {
+            height: 100%;
+            position: absolute;
+            width: 100%;
+            z-index: 0;
+            border-radius: 10px;
+            div,
+            .cardBackground {
+                height: 100%;
+                width: 100%;
+                background: theme.$color-dark-tint;
+                border-radius: 20px;
+            }
+        }
+
+        #header {
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            padding: 30px;
+
+            z-index: 1;
+            #date {
+                position: relative;
+                z-index: 1;
+                white-space: nowrap;
+            }
         }
     }
 
     #moodsList {
+        transition: opacity 0.2s ease-in-out;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -110,6 +134,7 @@ $spaceBetween: 20px;
     }
 
     #bottomChart {
+        transition: opacity 0.2s ease-in-out;
         width: 100%;
         background: theme.$color-dark-tint;
         padding: 30px;

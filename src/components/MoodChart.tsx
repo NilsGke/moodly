@@ -107,62 +107,66 @@ const MoodChart: React.FC<props> = ({
     const chartId = "chartGradient" + new Date(day.date).getTime();
 
     return (
-        <ComposedChart
-            width={detailed ? 300 : 250}
-            height={detailed ? 200 : 150}
-            data={data}
-            onClick={(e) => {
-                if (
-                    e !== null &&
-                    e.activeLabel !== undefined &&
-                    setHighlightedHour !== undefined
-                )
-                    setHighlightedHour(parseInt(e.activeLabel));
-            }}
-        >
-            <defs>
-                <linearGradient id={chartId} x1="0" y1="0" x2="0" y2="1">
-                    {gradient}
-                </linearGradient>
-            </defs>
-            {detailed ? (
-                <XAxis markerUnits={"Uhr"} interval={1} fontSize={10} />
-            ) : null}
-            <Area
-                type="monotone"
-                dataKey="uv"
-                stroke={
-                    gradient.length === 1
-                        ? `#${gradient[0]}`
-                        : `url(#${chartId})`
-                }
-                fillOpacity={1}
-                strokeWidth={3}
-                connectNulls={true}
-                fill="none"
-                isAnimationActive={false}
-                dot={
-                    detailed ? { fill: "#92949c", r: 5, strokeWidth: 0 } : false
-                }
-            />
-            {detailed ? (
-                <Line
-                    dataKey="mk"
+        <div>
+            <ComposedChart
+                width={detailed ? 300 : 250}
+                height={detailed ? 200 : 150}
+                data={data}
+                onClick={(e) => {
+                    if (
+                        e !== null &&
+                        e.activeLabel !== undefined &&
+                        setHighlightedHour !== undefined
+                    )
+                        setHighlightedHour(parseInt(e.activeLabel));
+                }}
+            >
+                <defs>
+                    <linearGradient id={chartId} x1="0" y1="0" x2="0" y2="1">
+                        {gradient}
+                    </linearGradient>
+                </defs>
+                {detailed ? (
+                    <XAxis markerUnits={"Uhr"} interval={1} fontSize={10} />
+                ) : null}
+                <Area
+                    type="monotone"
+                    dataKey="uv"
+                    stroke={
+                        gradient.length === 1
+                            ? `#${gradient[0]}`
+                            : `url(#${chartId})`
+                    }
+                    fillOpacity={1}
+                    strokeWidth={3}
+                    connectNulls={true}
                     fill="none"
                     isAnimationActive={false}
-                    dot={{ fill: "#3880ff", r: 5, strokeWidth: 0 }}
+                    dot={
+                        detailed
+                            ? { fill: "#92949c", r: 5, strokeWidth: 0 }
+                            : false
+                    }
                 />
-            ) : null}
+                {detailed ? (
+                    <Line
+                        dataKey="mk"
+                        fill="none"
+                        isAnimationActive={false}
+                        dot={{ fill: "#3880ff", r: 5, strokeWidth: 0 }}
+                    />
+                ) : null}
 
-            <Area
-                type="monotone"
-                dataKey="ar"
-                fillOpacity={0}
-                strokeWidth={0}
-                fill="none"
-                isAnimationActive={false}
-            />
-        </ComposedChart>
+                <Area
+                    type="monotone"
+                    dataKey="ar"
+                    fillOpacity={0}
+                    strokeWidth={0}
+                    fill="none"
+                    isAnimationActive={false}
+                />
+            </ComposedChart>
+        </div>
     );
 };
 

@@ -4,9 +4,10 @@ import { moodType } from "../helpers/moods";
 import dayjs from "dayjs";
 type props = {
     moods: Array<moodType>;
+    transitionOpacity: number;
 };
 
-const CardList: React.FC<props> = ({ moods }) => {
+const CardList: React.FC<props> = ({ moods, transitionOpacity }) => {
     const days: Array<dayType> = [];
     moods.forEach((mood) => {
         const foundDay = days.find((day) =>
@@ -25,7 +26,7 @@ const CardList: React.FC<props> = ({ moods }) => {
 
     return (
         <div id="cardContainer">
-            <div id="cardList">
+            <div id="cardList" style={{ opacity: transitionOpacity }}>
                 {days.map((day, i) => (
                     <DayCard key={i} day={day} />
                 ))}
