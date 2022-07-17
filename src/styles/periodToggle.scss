@@ -1,0 +1,29 @@
+@use "./theme.scss";
+@use "sass:color";
+
+#periodToggle {
+    height: auto !important;
+    width: auto !important;
+    div {
+        button {
+            background: theme.$color-dark-tint;
+            &.Mui-selected {
+                background: color.adjust(
+                    theme.$color-dark-tint,
+                    $lightness: 10
+                );
+            }
+            // transition: background 0.2s ease-out;
+
+            $borderRadius: 10px;
+            &:first-child {
+                border-top-left-radius: $borderRadius !important;
+                border-bottom-left-radius: $borderRadius !important;
+            }
+            &:last-child {
+                border-top-right-radius: $borderRadius !important;
+                border-bottom-right-radius: $borderRadius !important;
+            }
+        }
+    }
+}
