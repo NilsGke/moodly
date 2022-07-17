@@ -12,17 +12,28 @@ const DaysList = ({
 }: RouteComponentProps<{ date?: string }>) => {
     const [moods, setMoods] = useState(getMoods());
     const [refresh, setRefresh] = useState(true);
+    const [timerDone, setTimerDone] = useState<boolean>(false);
 
     useEffect(() => {
         if (refresh) setMoods(getMoods());
         setRefresh(false);
     }, [refresh]);
 
+    // this is a backupTimer to fadein the items if the app is coming back from a day view but there is no more mood in that dayview so it cant do the transition
+    useEffect(() => {
+        setTimeout(() => {
+            setTimerDone(true);
+        }, 500);
+    }, []);
+
+    console.log("rerendered dayScreen");
+
     type AddMoodScreenFunctions = React.ElementRef<typeof AddMoodScreen>;
     const addMoodScreenRef = useRef<AddMoodScreenFunctions>(null);
 
     const { isTransitioning, activePathname } = useSharedElementContext();
     const opacity =
+        timerDone ||
         pathname === "/days" ||
         (!isTransitioning && activePathname === pathname)
             ? 1
