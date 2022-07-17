@@ -1,5 +1,6 @@
 import { Storage } from "@capacitor/storage";
 import dayjs from "dayjs"
+import { dayType } from "../components/DayCard";
 import { addNewState } from "./history";
 
 export type moodType = {
@@ -65,6 +66,21 @@ const getFreeId = (moods: Array<moodType>): number => {
     let id = 0;
     while (taken.includes(id)) id++;
     return id;
+}
+
+export const moodsToDays = (moods: Array<moodType>): Array<dayType> => {
+    const days: Array<dayType> = [];
+    moods.forEach(mood => {
+        const foundDay = days.find(day => dayjs(day.date).isSame(mood.date));
+        if (foundDay === undefined)
+            days.push({
+                moods: [mood],
+                date: mood.date,
+            })
+        else
+            foundDay.moods.push(mood)
+    })
+    return days.sort((a, b) => a.date - b.date);
 }
 
 
