@@ -73,6 +73,7 @@ const AddMoodScreen: React.ForwardRefRenderFunction<functions, props> = (
                 id: fixedId || -1,
                 text,
             });
+        // eslint-disable-next-line
     }, [date, time, mood, text]);
 
     const close = () => {
