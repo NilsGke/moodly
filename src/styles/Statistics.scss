@@ -1,0 +1,64 @@
+@use "./theme.scss";
+
+#page.statistics {
+    $transTime: 0.3s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding-top: 50px !important;
+    .card {
+        background: theme.$color-dark-tint;
+        border-radius: 20px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        transition: all 0.3s ease-in-out;
+        width: calc(100vw - 40px);
+
+        &#header {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+            align-items: center;
+            #periodPicker {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+                width: 60%;
+                h2 {
+                    font-size: 20px;
+                }
+            }
+            > button {
+                border: 1px solid #505255;
+                border-radius: 10px;
+                background-color: transparent;
+                $size: 40px;
+                height: $size;
+                width: $size;
+                font-size: 17px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.2s ease-in-out;
+                &:active {
+                    transition: none;
+                    background-color: #505255;
+                }
+                &:disabled {
+                    color: #505255;
+                }
+            }
+        }
+
+        div > h2 {
+            position: relative;
+            color: white;
+            z-index: 2;
+        }
+    }
+}
