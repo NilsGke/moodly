@@ -30,7 +30,7 @@ export const goBackInTime = () => {
 
 export const backToTheFuture = () => {
     return new Promise<void>((resolve, reject) => {
-        if (pointer == timeLine.length - 1) return reject();
+        if (pointer === timeLine.length - 1) return reject();
         pointer++;
         setMoods(getCurrent()).then(resolve, reject);
     })
