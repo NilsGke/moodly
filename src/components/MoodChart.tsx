@@ -144,7 +144,11 @@ const MoodChart: React.FC<props> = ({
                     isAnimationActive={false}
                     dot={
                         detailed
-                            ? { fill: "#92949c", r: 5, strokeWidth: 0 }
+                            ? {
+                                  fill: "#92949c",
+                                  r: 5,
+                                  strokeWidth: 0,
+                              }
                             : false
                     }
                 />
@@ -153,7 +157,11 @@ const MoodChart: React.FC<props> = ({
                         dataKey="mk"
                         fill="none"
                         isAnimationActive={false}
-                        dot={{ fill: "#3880ff", r: 5, strokeWidth: 0 }}
+                        dot={{
+                            fill: "#3880ff",
+                            r: 5,
+                            strokeWidth: 0,
+                        }}
                     />
                 ) : null}
 
