@@ -1,3 +1,29 @@
+@use "./theme.scss";
+
 #cardList {
     transition: opacity 0.2s ease-in-out;
+
+    div.divider {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        &::after,
+        &::before {
+            display: block;
+            position: relative;
+            content: "";
+            background: theme.$color-medium-shade;
+            height: 1px;
+            width: 80vw;
+            z-index: 1;
+            opacity: 0.6;
+        }
+        span {
+            color: theme.$color-medium-shade;
+            background-color: theme.$color-dark;
+            z-index: 2;
+            padding: 0 20px;
+        }
+    }
 }
