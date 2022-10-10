@@ -4,9 +4,17 @@ import PeriodToggleButtons from "../components/PeriodToggleButtons";
 import AverageChart from "../components/statsCharts/AverageChart";
 import "../styles/Statistics.scss";
 import { period } from "../components/PeriodToggleButtons";
-import { getMoods, moodType } from "../helpers/moods";
+import { getMoods, loadMoodsFromStorage, moodType } from "../helpers/moods";
+import ButtonGroup from "@mui/material/ButtonGroup/ButtonGroup";
+import Button from "@mui/material/Button/Button";
+import ThemeProvider from "@mui/material/styles/ThemeProvider";
+import createTheme from "@mui/material/styles/createTheme";
+import { Share } from "@capacitor/share";
+import { Directory, Filesystem } from "@capacitor/filesystem";
+import { useHistory } from "react-router-dom";
 
 const Statistics: React.FC = () => {
+    const history = useHistory();
     const [period, setPeriod] = useState<period>("week");
     const [referenceDay, setReferenceDay] = useState(dayjs().valueOf());
 
@@ -15,8 +23,6 @@ const Statistics: React.FC = () => {
         period === "all" ? 0 : dayjs(latestDate).subtract(1, period);
 
     // const periodString = period[0].toUpperCase() + period.substring(1) + "ly";
-
-    console.log(getMoods());
 
     const moods: Array<moodType> =
         period === "all"
@@ -32,8 +38,6 @@ const Statistics: React.FC = () => {
                           "day"
                       )
               );
-
-    console.log(moods);
 
     const changeReferenceDay = (direction: "plus" | "minus") => {
         let newRefDay: number;
@@ -87,6 +91,62 @@ const Statistics: React.FC = () => {
             <div id="chart1" className="card">
                 <h2>Daily average</h2>
                 <AverageChart moods={moods} />
+            </div>
+
+            <div className="card options">
+                <ThemeProvider
+                    theme={createTheme({ palette: { mode: "dark" } })}
+                >
+                    <ButtonGroup
+                        variant="outlined"
+                        aria-label="import export button"
+                    >
+                        <Button
+                            onClick={async () => {
+                                const data = JSON.stringify(
+                                    await loadMoodsFromStorage()
+                                );
+
+                                try {
+                                    const result = await Filesystem.writeFile({
+                                        path: `moodlyBackup.json`,
+                                        data: btoa(data),
+                                        directory: Directory.Cache,
+                                    });
+                                    console.log("Wrote file", result);
+                                    let shareRet = await Share.share({
+                                        title: "moodly backup file",
+                                        url: result.uri,
+                                        dialogTitle: "Save file",
+                                        text: "test test tes",
+                                    });
+                                } catch (e) {
+                                    console.error("Unable to write file", e);
+
+                                    console.log(
+                                        "-> trying to share file via navigator api"
+                                    );
+
+                                    try {
+                                        window.navigator.share({
+                                            text: data,
+                                        });
+                                    } catch (e) {
+                                        console.log(
+                                            "unable to access (or use) navivator"
+                                        );
+                                        alert(
+                                            "unable to share file / text. copy text from this page ->"
+                                        );
+                                        history.push("/data")
+                                    }
+                                }
+                            }}
+                        >
+                            export
+                        </Button>
+                    </ButtonGroup>
+                </ThemeProvider>
             </div>
         </div>
     );
