@@ -32,7 +32,7 @@ const MoodListItem: React.FC<props> = ({
             >
                 {mood.mood}
             </span>
-            <span className="moodTime">{dayjs(mood.time).format("HH:MM")}</span>
+            <span className="moodTime">{dayjs(mood.time).format("HH:mm")}</span>
             <span className="text">{mood.text}</span>
             <div className="edit">
                 <button className="edit" onClick={() => editMood()}>
