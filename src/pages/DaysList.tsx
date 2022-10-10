@@ -26,8 +26,6 @@ const DaysList = ({
         }, 500);
     }, []);
 
-    console.log("rerendered dayScreen");
-
     type AddMoodScreenFunctions = React.ElementRef<typeof AddMoodScreen>;
     const addMoodScreenRef = useRef<AddMoodScreenFunctions>(null);
 
