@@ -30,6 +30,7 @@ import Statistics from "./pages/Statistics";
 // change dayjs to german
 import dayjs from "dayjs";
 import { loadMoodsFromStorage } from "./helpers/moods";
+import Data from "./pages/Data";
 require("dayjs/locale/de");
 var customParseFormat = require("dayjs/plugin/customParseFormat");
 dayjs.extend(customParseFormat);
@@ -75,6 +76,7 @@ const Routes: React.FC = () => {
                         <Route path="/days/:date" component={DayScreen} />
                         <Route path="/days" component={DaysList} />
                         <Route path="/stats" component={Statistics} />
+                        <Route path="/data" component={Data} />
                     </Switch>
                 </SharedElementContextProvider>
             </div>
