@@ -27,9 +27,11 @@ const CardList: React.FC<props> = ({ moods, transitionOpacity }) => {
     return (
         <div id="cardContainer">
             <div id="cardList" style={{ opacity: transitionOpacity }}>
-                {days.map((day, i) => (
-                    <DayCard key={i} day={day} />
-                ))}
+                {days
+                    .sort((a, b) => b.date - a.date)
+                    .map((day, i) => (
+                        <DayCard key={i} day={day} />
+                    ))}
             </div>
         </div>
     );
