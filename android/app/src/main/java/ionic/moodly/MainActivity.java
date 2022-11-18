@@ -1,4 +1,4 @@
-package io.ionic.starter;
+package ionic.moodly;
 
 import com.getcapacitor.BridgeActivity;
 
