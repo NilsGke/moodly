@@ -52,6 +52,41 @@ const Statistics: React.FC = () => {
             setReferenceDay(newRefDay);
     };
 
+    const exportFun = async () => {
+        const data = JSON.stringify(await loadMoodsFromStorage());
+
+        try {
+            const result = await Filesystem.writeFile({
+                path: `moodlyBackup.json`,
+                data: btoa(data),
+                directory: Directory.Cache,
+            });
+            console.log("Wrote file", result);
+            let shareRet = await Share.share({
+                title: "moodly backup file",
+                url: result.uri,
+                dialogTitle: "Save file",
+                text: "test test tes",
+            });
+        } catch (e) {
+            console.error("Unable to write file", e);
+
+            console.log("-> trying to share file via navigator api");
+
+            try {
+                window.navigator.share({
+                    text: data,
+                });
+            } catch (e) {
+                console.log("unable to access (or use) navivator");
+                alert(
+                    "unable to share file / text. copy text from this page ->"
+                );
+                history.push("/data");
+            }
+        }
+    };
+
     return (
         <div id="page" className="statistics">
             <div className="card" id="header">
@@ -101,50 +136,7 @@ const Statistics: React.FC = () => {
                         variant="outlined"
                         aria-label="import export button"
                     >
-                        <Button
-                            onClick={async () => {
-                                const data = JSON.stringify(
-                                    await loadMoodsFromStorage()
-                                );
-
-                                try {
-                                    const result = await Filesystem.writeFile({
-                                        path: `moodlyBackup.json`,
-                                        data: btoa(data),
-                                        directory: Directory.Cache,
-                                    });
-                                    console.log("Wrote file", result);
-                                    let shareRet = await Share.share({
-                                        title: "moodly backup file",
-                                        url: result.uri,
-                                        dialogTitle: "Save file",
-                                        text: "test test tes",
-                                    });
-                                } catch (e) {
-                                    console.error("Unable to write file", e);
-
-                                    console.log(
-                                        "-> trying to share file via navigator api"
-                                    );
-
-                                    try {
-                                        window.navigator.share({
-                                            text: data,
-                                        });
-                                    } catch (e) {
-                                        console.log(
-                                            "unable to access (or use) navivator"
-                                        );
-                                        alert(
-                                            "unable to share file / text. copy text from this page ->"
-                                        );
-                                        history.push("/data")
-                                    }
-                                }
-                            }}
-                        >
-                            export
-                        </Button>
+                        <Button onClick={exportFun}>Export</Button>
                     </ButtonGroup>
                 </ThemeProvider>
             </div>
