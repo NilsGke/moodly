@@ -1,10 +1,15 @@
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import dayjs from "dayjs";
 import PeriodToggleButtons from "../components/PeriodToggleButtons";
 import AverageChart from "../components/statsCharts/AverageChart";
 import "../styles/Statistics.scss";
 import { period } from "../components/PeriodToggleButtons";
-import { getMoods, loadMoodsFromStorage, moodType } from "../helpers/moods";
+import {
+    addMood,
+    getMoods,
+    loadMoodsFromStorage,
+    moodType,
+} from "../helpers/moods";
 import ButtonGroup from "@mui/material/ButtonGroup/ButtonGroup";
 import Button from "@mui/material/Button/Button";
 import ThemeProvider from "@mui/material/styles/ThemeProvider";
@@ -50,6 +55,80 @@ const Statistics: React.FC = () => {
 
         if (dayjs(newRefDay).isBefore(dayjs().add(1, "day")))
             setReferenceDay(newRefDay);
+    };
+
+    // import
+    const inputRef = useRef<HTMLInputElement | null>(null);
+
+    const handleFiles = useCallback(() => {
+        if (inputRef.current) {
+            var files = inputRef.current.files;
+            if (files === null) return;
+            let file = files[0];
+
+            if (file) {
+                var reader = new FileReader();
+                reader.readAsText(file, "UTF-8");
+                reader.onload = function (evt) {
+                    if (evt?.target && evt.target.result)
+                        if (evt.target.result instanceof ArrayBuffer) {
+                            let td = new TextDecoder();
+                            let ua = new Uint8Array(evt.target.result);
+                            importMoods(td.decode(ua));
+                        } else importMoods(evt.target.result);
+                };
+            }
+        }
+    }, []);
+
+    const importMoods = (json: string) => {
+        const moods = JSON.parse(json) as moodType[];
+        moods.forEach((mood) => addMood(mood));
+    };
+
+    useEffect(() => {
+        if (inputRef.current)
+            inputRef.current.addEventListener("change", handleFiles, false);
+        return () => {
+            inputRef.current &&
+                // eslint-disable-next-line react-hooks/exhaustive-deps
+                inputRef.current.removeEventListener("change", handleFiles);
+        };
+    }, [handleFiles, inputRef]);
+
+    const exportFun = async () => {
+        const data = JSON.stringify(await loadMoodsFromStorage());
+
+        try {
+            const result = await Filesystem.writeFile({
+                path: `moodlyBackup.json`,
+                data: btoa(data),
+                directory: Directory.Cache,
+            });
+            console.log("Wrote file", result);
+            let shareRet = await Share.share({
+                title: "moodly backup file",
+                url: result.uri,
+                dialogTitle: "Save file",
+                text: "test test tes",
+            });
+        } catch (e) {
+            console.error("Unable to write file", e);
+
+            console.log("-> trying to share file via navigator api");
+
+            try {
+                window.navigator.share({
+                    text: data,
+                });
+            } catch (e) {
+                console.log("unable to access (or use) navivator");
+                alert(
+                    "unable to share file / text. copy text from this page ->"
+                );
+                history.push("/data");
+            }
+        }
     };
 
     return (
@@ -101,50 +180,16 @@ const Statistics: React.FC = () => {
                         variant="outlined"
                         aria-label="import export button"
                     >
-                        <Button
-                            onClick={async () => {
-                                const data = JSON.stringify(
-                                    await loadMoodsFromStorage()
-                                );
-
-                                try {
-                                    const result = await Filesystem.writeFile({
-                                        path: `moodlyBackup.json`,
-                                        data: btoa(data),
-                                        directory: Directory.Cache,
-                                    });
-                                    console.log("Wrote file", result);
-                                    let shareRet = await Share.share({
-                                        title: "moodly backup file",
-                                        url: result.uri,
-                                        dialogTitle: "Save file",
-                                        text: "test test tes",
-                                    });
-                                } catch (e) {
-                                    console.error("Unable to write file", e);
-
-                                    console.log(
-                                        "-> trying to share file via navigator api"
-                                    );
-
-                                    try {
-                                        window.navigator.share({
-                                            text: data,
-                                        });
-                                    } catch (e) {
-                                        console.log(
-                                            "unable to access (or use) navivator"
-                                        );
-                                        alert(
-                                            "unable to share file / text. copy text from this page ->"
-                                        );
-                                        history.push("/data")
-                                    }
-                                }
-                            }}
-                        >
-                            export
+                        <Button component="label">
+                            Import
+                            <input
+                                ref={inputRef}
+                                hidden
+                                type="file"
+                                accept=".json"
+                            />
                         </Button>
+                        <Button onClick={exportFun}>Export</Button>
                     </ButtonGroup>
                 </ThemeProvider>
             </div>
