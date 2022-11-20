@@ -45,6 +45,9 @@ const DayScreen = ({
     const [refresh, setRefresh] = useState(false);
     const [activeMood, setActiveMood] = useState<moodType["id"]>(-1);
     const [modifiedMood, setModifiedMood] = useState<moodType | null>(null);
+
+    const [addMoodScreenOpen, setAddMoodScreenOpen] = useState<boolean>(false);
+
     useEffect(() => {
         let newMoods = getMoods()
             .filter((mood: moodType) =>
@@ -90,7 +93,7 @@ const DayScreen = ({
             const moodToModify = moods.find((m) => m.id === activeMood);
             if (moodToModify != null) {
                 addMoodScreenRef.current?.setValues(moodToModify);
-                addMoodScreenRef.current?.open();
+                setAddMoodScreenOpen(true);
             }
         }
     };
@@ -199,14 +202,16 @@ const DayScreen = ({
                 </button>
             </div>
             <AddMoodScreen
+                open={addMoodScreenOpen}
+                close={() => {
+                    setAddMoodScreenOpen(false);
+                    setActiveMood(-1);
+                    setRefresh(true);
+                }}
                 ref={addMoodScreenRef}
                 refresh={() => setRefresh(true)}
                 customSaveFunction={(mood: moodType) => saveEditedMood(mood)}
                 change={(mood: moodType) => setModifiedMood(mood)}
-                closeHandler={() => {
-                    setActiveMood(-1);
-                    setRefresh(true);
-                }}
             />
         </>
     );

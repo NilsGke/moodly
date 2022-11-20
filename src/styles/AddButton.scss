@@ -1,17 +1,25 @@
 @use "./theme";
 
 #addButton {
-    height: 60px;
-    width: 60px;
+    $size: 60px;
+    $distance: 20px;
+    height: $size;
+    width: $size;
     border-radius: 100%;
     position: fixed;
     z-index: 4;
-    bottom: calc(56px / 2);
-    left: calc(50% - 30px);
+    bottom: $distance;
+    right: $distance;
     border: none;
     background-color: theme.$color-primary;
+    transition: all 0.2s ease-in-out;
+    filter: drop-shadow(0px 4px 3px theme.$color-primary);
     svg {
-        height: 30px;
-        width: 30px;
+        height: calc($size / 2);
+        width: calc($size / 2);
+    }
+    &.confirm {
+        background-color: theme.$color-success;
+        filter: drop-shadow(0px 4px 3px theme.$color-success);
     }
 }
