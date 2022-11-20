@@ -6,11 +6,7 @@ import {
     Switch,
     useLocation,
 } from "react-router-dom";
-import {
-    BottomNavigation,
-    BottomNavigationAction,
-    CircularProgress,
-} from "@mui/material";
+import { CircularProgress } from "@mui/material";
 
 import { SharedElementContextProvider } from "react-shared-element-transition";
 
@@ -18,10 +14,12 @@ import { StatusBar } from "@capacitor/status-bar";
 
 import "./styles/App.scss";
 import "./styles/devStyles.scss";
+import "./styles/topBar.scss";
 
 // icons
-import Timeline from "@mui/icons-material/Timeline";
 import BarChartIcon from "@mui/icons-material/BarChart";
+import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
+
 // pages
 import DayScreen from "./pages/DayScreen";
 import DaysList from "./pages/DaysList";
@@ -62,6 +60,43 @@ const Routes: React.FC = () => {
 
     return (
         <>
+            <div id="topBar">
+                <div
+                    className={
+                        "navButton left" +
+                        (pathname === "/" || pathname === "/days"
+                            ? " hidden"
+                            : "")
+                    }
+                >
+                    <Link to={pathname === "/stats" ? "/days" : "/"}>
+                        <KeyboardArrowLeftIcon />
+                    </Link>
+                </div>
+                <div className="logo">
+                    <h1>
+                        <img
+                            src={
+                                process.env.PUBLIC_URL +
+                                "/assets/logo/logoText.svg"
+                            }
+                            alt="Moodly logo text"
+                        />
+                    </h1>
+                </div>
+                <div
+                    className={
+                        "navButton right" +
+                        (pathname !== "/" && pathname !== "/days"
+                            ? " hidden"
+                            : "")
+                    }
+                >
+                    <Link to={"/stats"}>
+                        <BarChartIcon />
+                    </Link>
+                </div>
+            </div>
             <div
                 id="pageContainer"
                 className={
@@ -80,25 +115,6 @@ const Routes: React.FC = () => {
                     </Switch>
                 </SharedElementContextProvider>
             </div>
-            <BottomNavigation>
-                <BottomNavigationAction
-                    component={Link}
-                    to={pathname === "/stats" ? "/days" : "/"} // change destination to /days when coming from /stats to make the transition possible (with the opacity) (kinda janky solution but works)
-                    label="Timeline"
-                    value="timeline"
-                    icon={<Timeline />}
-                    className={pathname === "/" ? "selected" : ""}
-                    {...{ ...{ showLabel: pathname === "/" } }}
-                />
-                <BottomNavigationAction label="" icon={""} />
-                <BottomNavigationAction
-                    component={Link}
-                    to="/stats"
-                    label="Stats"
-                    icon={<BarChartIcon />}
-                    {...{ ...{ showLabel: pathname === "/stats" } }}
-                />
-            </BottomNavigation>
         </>
     );
 };

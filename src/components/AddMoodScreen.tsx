@@ -4,24 +4,22 @@ import { GrFormClose } from "react-icons/gr";
 import { addMood, moodType } from "../helpers/moods";
 import dayjs from "dayjs";
 
-export type functions = {
-    open: () => void;
-    close: () => void;
+export type componentProps = {
     setValues: (mood: moodType) => void;
+    save: () => void;
 };
 type props = {
+    open: boolean;
+    close: () => void;
     refresh: () => void;
     customSaveFunction?: (mood: moodType) => Promise<void>;
     change?: (mood: moodType) => void;
-    closeHandler?: () => void;
 };
 
-const AddMoodScreen: React.ForwardRefRenderFunction<functions, props> = (
-    { refresh, customSaveFunction, change: setChangedMood, closeHandler },
+const AddMoodScreen: React.ForwardRefRenderFunction<componentProps, props> = (
+    { open, close, refresh, customSaveFunction, change: setChangedMood },
     ref
 ) => {
-    const [visible, setVisible] = useState(false);
-
     const [date, setDate] = useState(dayjs().valueOf());
     const [time, setTime] = useState(dayjs().valueOf());
     const [mood, setMood] = useState<moodType["mood"]>(1);
@@ -30,8 +28,6 @@ const AddMoodScreen: React.ForwardRefRenderFunction<functions, props> = (
     const [text, setText] = useState("");
 
     useImperativeHandle(ref, () => ({
-        open: () => setVisible(true),
-        close: () => close(),
         setValues: (mood: moodType) => {
             setDate(mood.date);
             setTime(mood.time);
@@ -40,6 +36,7 @@ const AddMoodScreen: React.ForwardRefRenderFunction<functions, props> = (
             setText(mood.text);
             setFixedId(mood.id);
         },
+        save: () => save(),
     }));
 
     const save = async () => {
@@ -76,15 +73,10 @@ const AddMoodScreen: React.ForwardRefRenderFunction<functions, props> = (
         // eslint-disable-next-line
     }, [date, time, mood, text]);
 
-    const close = () => {
-        setVisible(false);
-        if (closeHandler) closeHandler();
-    };
-
     return (
         <div
             id="addMoodScreen"
-            className={visible ? "" : "hidden"}
+            className={open ? "" : "hidden"}
             onClick={(event) => {
                 if (event.target === event.currentTarget) close();
             }}
@@ -185,13 +177,17 @@ const AddMoodScreen: React.ForwardRefRenderFunction<functions, props> = (
                         value={text}
                     ></textarea>
 
-                    <button
-                        id="saveButton"
-                        onClick={() => save()}
-                        disabled={mood == null || !moodChosen}
-                    >
-                        Speichern
-                    </button>
+                    {customSaveFunction ? (
+                        <button
+                            id="saveButton"
+                            onClick={() => save()}
+                            disabled={mood == null || !moodChosen}
+                        >
+                            Speichern
+                        </button>
+                    ) : (
+                        ""
+                    )}
                 </div>
                 <button id="close" onClick={() => close()}>
                     <GrFormClose />

@@ -13,6 +13,7 @@ const DaysList = ({
     const [moods, setMoods] = useState(getMoods());
     const [refresh, setRefresh] = useState(true);
     const [timerDone, setTimerDone] = useState<boolean>(false);
+    const [addMoodScreenOpen, setAddMoodScreenOpen] = useState<boolean>(false);
 
     useEffect(() => {
         if (refresh) setMoods(getMoods());
@@ -26,8 +27,8 @@ const DaysList = ({
         }, 500);
     }, []);
 
-    type AddMoodScreenFunctions = React.ElementRef<typeof AddMoodScreen>;
-    const addMoodScreenRef = useRef<AddMoodScreenFunctions>(null);
+    type AddMoodScreenProps = React.ElementRef<typeof AddMoodScreen>;
+    const addMoodScreenRef = useRef<AddMoodScreenProps>(null);
 
     const { isTransitioning, activePathname } = useSharedElementContext();
     const opacity =
@@ -40,10 +41,19 @@ const DaysList = ({
     return (
         <div id="page" className="daysList">
             <CardList transitionOpacity={opacity} moods={moods} />
-            <AddButton addMoodScreenRef={addMoodScreenRef} />
+            <AddButton
+                click={() =>
+                    addMoodScreenOpen
+                        ? addMoodScreenRef.current?.save()
+                        : setAddMoodScreenOpen(true)
+                }
+                isConfirmButton={addMoodScreenOpen}
+            />
             <AddMoodScreen
+                open={addMoodScreenOpen}
                 ref={addMoodScreenRef}
                 refresh={() => setRefresh(true)}
+                close={() => setAddMoodScreenOpen(false)}
             />
         </div>
     );
