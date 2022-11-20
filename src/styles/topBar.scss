@@ -1,0 +1,58 @@
+#topBar {
+    $paddingTop: 40px;
+    $paddingBottom: 20px;
+    padding-top: $paddingTop !important;
+    padding-bottom: $paddingBottom;
+    height: calc(56px + $paddingTop + $paddingBottom);
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    z-index: 3;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    backdrop-filter: blur(10px);
+    box-shadow: #222428 0px 0px 10px;
+    .logo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        h1 {
+            height: 100%;
+            width: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            img {
+                height: 100%;
+                width: 100%;
+            }
+        }
+    }
+    .navButton {
+        height: 100%;
+        width: 30px;
+        margin: 0 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        opacity: 1;
+        transition: all 0.3s ease-in-out;
+
+        a {
+            color: white;
+            height: 100%;
+            width: 100%;
+            svg {
+                height: 100%;
+                width: 100%;
+            }
+        }
+        &.hidden {
+            opacity: 0;
+        }
+    }
+}
