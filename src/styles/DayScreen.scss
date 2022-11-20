@@ -57,8 +57,10 @@ $spaceBetween: 20px;
         width: 100%;
         .moodEntry {
             width: 100%;
-            height: 50px;
-            max-height: 50px;
+            // height: 50px;
+            height: auto;
+            min-height: 50px;
+            max-height: 2000px;
             padding: 20px;
             border-radius: $borderRadius;
             display: flex;
@@ -88,14 +90,15 @@ $spaceBetween: 20px;
             .text {
                 color: theme.$color-medium;
                 max-width: 130px;
-                text-overflow: ellipsis;
                 overflow: hidden;
-                white-space: nowrap;
+                white-space: pre-wrap;
+                height: 20px;
+                transition: height 0.3s ease-in-out;
             }
             .edit {
                 transition: all 0.2s ease-in-out;
                 display: flex;
-                flex-direction: row;
+                flex-direction: column;
                 align-items: center;
                 justify-content: center;
                 gap: 10px;
@@ -112,16 +115,15 @@ $spaceBetween: 20px;
                 }
             }
             &.active {
+                gap: 3px;
                 background-color: color.adjust(
                     theme.$color-dark-tint,
                     $lightness: 10%
                 );
-                max-height: 200px;
-                height: 100px;
+                max-height: 1000px;
                 .text {
-                    overflow: hidden;
-                    text-overflow: clip;
                     white-space: pre-wrap;
+                    height: 150px;
                 }
                 .edit {
                     button {
