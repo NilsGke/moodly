@@ -1,5 +1,5 @@
 import { Storage } from "@capacitor/storage";
-import dayjs from "dayjs"
+import dayjs from "dayjs";
 import { dayType } from "../components/DayCard";
 import { addNewState } from "./history";
 
@@ -26,63 +26,74 @@ export const loadMoodsFromStorage = (): Promise<Array<moodType>> =>
         );
         moods = newMoods;
         res(newMoods);
-    })
+    });
 
 export const saveMoodsToStorage = (): Promise<void> => {
     return new Promise((res) =>
-        Storage.set({ key: "moods", value: JSON.stringify(getMoods()) }).then(res)
-    )
-}
+        Storage.set({ key: "moods", value: JSON.stringify(getMoods()) }).then(
+            res
+        )
+    );
+};
 
 export const setMoods = (newMoods: Array<moodType>): Promise<void> => {
     moods = newMoods;
-    return saveMoodsToStorage()
-}
+    return saveMoodsToStorage();
+};
 
 export const addMood = async (newMood: moodType): Promise<void> => {
     const oldMoods = getMoods();
     newMood.id = getFreeId(oldMoods);
-    moods = [...oldMoods, newMood]
-    return saveMoodsToStorage()
-}
+    moods = [...oldMoods, newMood];
+    return saveMoodsToStorage();
+};
 
 export const modifyMood = (modifiedMood: moodType): Promise<void> => {
-    moods = getMoods().map(m => {
+    moods = getMoods().map((m) => {
         if (m.id !== modifiedMood.id) return m;
         else return modifiedMood;
     });
-    return saveMoodsToStorage()
-}
+    return saveMoodsToStorage();
+};
 
 export const removeMood = (mood: moodType): Promise<void> => {
     const oldMoods = getMoods();
-    const newMoods = oldMoods.filter(m => m.id !== mood.id)
+    const newMoods = oldMoods.filter((m) => m.id !== mood.id);
     addNewState(newMoods);
     return setMoods(newMoods);
-}
+};
 
 const getFreeId = (moods: Array<moodType>): number => {
-    const taken = moods.map(m => m.id);
+    const taken = moods.map((m) => m.id);
     let id = 0;
     while (taken.includes(id)) id++;
     return id;
-}
+};
 
 export const moodsToDays = (moods: Array<moodType>): Array<dayType> => {
     const days: Array<dayType> = [];
-    moods.forEach(mood => {
-        const foundDay = days.find(day => dayjs(day.date).isSame(mood.date));
+    moods.forEach((mood) => {
+        const foundDay = days.find((day) => dayjs(day.date).isSame(mood.date));
         if (foundDay === undefined)
             days.push({
                 moods: [mood],
                 date: mood.date,
-            })
-        else
-            foundDay.moods.push(mood)
-    })
+            });
+        else foundDay.moods.push(mood);
+    });
     return days.sort((a, b) => a.date - b.date);
-}
+};
 
+export const getEncodedMoods = async (): Promise<string> =>
+    btoa(encodeURIComponent(JSON.stringify(await loadMoodsFromStorage())));
 
+export const decodeMoods = (str: string): string =>
+    decodeURIComponent(window.atob(str));
 
-export const moodColors = ["#eb445a", "#f58432", "#ffc409", "#81cd46", "#2dd36f"]
+export const moodColors = [
+    "#eb445a",
+    "#f58432",
+    "#ffc409",
+    "#81cd46",
+    "#2dd36f",
+];
