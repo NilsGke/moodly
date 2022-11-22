@@ -17,6 +17,7 @@ import createTheme from "@mui/material/styles/createTheme";
 import { Share } from "@capacitor/share";
 import { Directory, Filesystem } from "@capacitor/filesystem";
 import { useHistory } from "react-router-dom";
+import AlertMassage from "../components/AlertToast";
 
 const Statistics: React.FC = () => {
     const history = useHistory();
@@ -133,6 +134,7 @@ const Statistics: React.FC = () => {
 
     return (
         <div id="page" className="statistics">
+            {status ? <AlertMassage message={status.msg} /> : null}
             <div className="card" id="header">
                 <button
                     className="arrow"
