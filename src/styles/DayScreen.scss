@@ -94,6 +94,9 @@ $spaceBetween: 20px;
                 white-space: pre-wrap;
                 height: 20px;
                 transition: height 0.3s ease-in-out;
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
             .edit {
                 transition: all 0.2s ease-in-out;
@@ -124,6 +127,7 @@ $spaceBetween: 20px;
                 .text {
                     white-space: pre-wrap;
                     height: 150px;
+                    overflow: visible;
                 }
                 .edit {
                     button {
