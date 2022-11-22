@@ -1,0 +1,17 @@
+#page.data {
+    button.copy {
+        $marginSide: 40px;
+        margin: 20px $marginSide;
+        height: 30px;
+        width: calc(100% - 2 * $marginSide);
+        background-color: transparent;
+        border: solid 1px gray;
+        border-radius: 10px;
+    }
+    code {
+        pre {
+            overflow: scroll;
+            padding: 10px;
+        }
+    }
+}

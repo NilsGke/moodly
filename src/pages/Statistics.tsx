@@ -6,8 +6,9 @@ import "../styles/Statistics.scss";
 import { period } from "../components/PeriodToggleButtons";
 import {
     addMood,
+    decodeMoods,
+    getEncodedMoods,
     getMoods,
-    loadMoodsFromStorage,
     moodType,
 } from "../helpers/moods";
 import ButtonGroup from "@mui/material/ButtonGroup/ButtonGroup";
@@ -17,11 +18,18 @@ import createTheme from "@mui/material/styles/createTheme";
 import { Share } from "@capacitor/share";
 import { Directory, Filesystem } from "@capacitor/filesystem";
 import { useHistory } from "react-router-dom";
+import AlertMassage from "../components/AlertToast";
 
 const Statistics: React.FC = () => {
     const history = useHistory();
     const [period, setPeriod] = useState<period>("week");
     const [referenceDay, setReferenceDay] = useState(dayjs().valueOf());
+
+    // status notification from importing moods
+    const [status, setStatusBase] = useState<{
+        msg: string;
+        key: number;
+    } | null>(null);
 
     const latestDate = referenceDay;
     const oldestDate =
@@ -46,7 +54,6 @@ const Statistics: React.FC = () => {
 
     const changeReferenceDay = (direction: "plus" | "minus") => {
         let newRefDay: number;
-        console.log(period, direction);
 
         if (period === "all") return;
         if (direction === "plus")
@@ -81,9 +88,39 @@ const Statistics: React.FC = () => {
         }
     }, []);
 
-    const importMoods = (json: string) => {
-        const moods = JSON.parse(json) as moodType[];
-        moods.forEach((mood) => addMood(mood));
+    const importMoods = (base64string: string) => {
+        const jsonString = decodeMoods(base64string);
+        let addCounter = 0;
+        try {
+            const moods = JSON.parse(jsonString) as moodType[];
+            const ogMoods = getMoods();
+            moods.forEach((mood) => {
+                console.log("adding mood start");
+                const found = ogMoods.find(
+                    (m) =>
+                        m.date === mood.date &&
+                        m.id === mood.id &&
+                        m.mood === mood.mood &&
+                        m.time === mood.time
+                );
+                if (found === undefined) {
+                    let id = 0;
+                    const ids = moods.map((m) => m.id);
+                    while (ids.includes(id)) id++;
+                    addMood({ ...mood, id });
+                    addCounter++;
+                } else console.warn("duplicate mood found: ", found);
+            });
+            setStatusBase({
+                key: Math.random(),
+                msg: "added " + addCounter + " moods",
+            });
+        } catch (error) {
+            setStatusBase({
+                key: Math.random(),
+                msg: "Error while importing moods: " + error,
+            });
+        }
     };
 
     useEffect(() => {
@@ -97,11 +134,15 @@ const Statistics: React.FC = () => {
     }, [handleFiles, inputRef]);
 
     const exportFun = async () => {
-        const data = JSON.stringify(await loadMoodsFromStorage());
+        const data = await getEncodedMoods();
+
+        console.log(data);
 
         try {
             const result = await Filesystem.writeFile({
-                path: `moodlyBackup.json`,
+                path: `moodlyBackup_${dayjs(new Date()).format(
+                    "MM_HH_DD_MM_YYYY"
+                )}.txt`,
                 data: btoa(data),
                 directory: Directory.Cache,
             });
@@ -110,7 +151,7 @@ const Statistics: React.FC = () => {
                 title: "moodly backup file",
                 url: result.uri,
                 dialogTitle: "Save file",
-                text: "test test tes",
+                text: "Export moods",
             });
         } catch (e) {
             console.error("Unable to write file", e);
@@ -133,6 +174,7 @@ const Statistics: React.FC = () => {
 
     return (
         <div id="page" className="statistics">
+            {status ? <AlertMassage message={status.msg} /> : null}
             <div className="card" id="header">
                 <button
                     className="arrow"
@@ -186,7 +228,7 @@ const Statistics: React.FC = () => {
                                 ref={inputRef}
                                 hidden
                                 type="file"
-                                accept=".json"
+                                accept=".txt"
                             />
                         </Button>
                         <Button onClick={exportFun}>Export</Button>
