@@ -1,8 +1,14 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import "../styles/DayScreen.scss";
 import MoodChart from "../components/MoodChart";
-import { getMoods, modifyMood, moodType } from "../helpers/moods";
+import {
+    addMood,
+    getMoods,
+    modifyMood,
+    moodType,
+    saveMoodsToStorage,
+} from "../helpers/moods";
 import dayjs from "dayjs";
 import MoodListItem from "../components/MoodListItem";
 import {
@@ -45,6 +51,9 @@ const DayScreen = ({
     const [refresh, setRefresh] = useState(false);
     const [activeMood, setActiveMood] = useState<moodType["id"]>(-1);
     const [modifiedMood, setModifiedMood] = useState<moodType | null>(null);
+    const [editMoodOnNextRender, setEditMoodOnNextRender] = useState<
+        number | null
+    >(null);
 
     const [addMoodScreenOpen, setAddMoodScreenOpen] = useState<boolean>(false);
 
@@ -88,7 +97,7 @@ const DayScreen = ({
     type AddMoodScreenFunctions = React.ElementRef<typeof AddMoodScreen>;
     const addMoodScreenRef = useRef<AddMoodScreenFunctions>(null);
 
-    const editMood = () => {
+    const editMood = useCallback(() => {
         if (modifiedMood !== null) {
             const moodToModify = moods.find((m) => m.id === activeMood);
             if (moodToModify != null) {
@@ -96,7 +105,13 @@ const DayScreen = ({
                 setAddMoodScreenOpen(true);
             }
         }
-    };
+    }, [activeMood, modifiedMood, moods]);
+
+    useEffect(() => {
+        if (editMoodOnNextRender === null) return;
+        setEditMoodOnNextRender(null);
+        editMood();
+    }, [editMoodOnNextRender, editMood]);
 
     const { isTransitioning, activePathname } = useSharedElementContext();
     const opacity = isTransitioning || activePathname !== pathname ? 0 : 1;
@@ -172,6 +187,30 @@ const DayScreen = ({
                                 }}
                             />
                         ))}
+                    <button
+                        className="moodEntry addMood"
+                        onClick={async () => {
+                            const newMoods = moods.slice();
+                            let id = 0;
+                            const ids = getMoods().map((m) => m.id);
+                            while (ids.includes(id)) id++;
+                            const newMood = {
+                                date: currentDay.valueOf(),
+                                id,
+                                mood: 4,
+                                text: "",
+                                time: Date.now(),
+                            } as moodType;
+                            newMoods.push(newMood);
+                            addMood(newMood);
+                            await saveMoodsToStorage();
+                            setMoods(newMoods);
+                            setActiveMood(id);
+                            setEditMoodOnNextRender(id);
+                        }}
+                    >
+                        +
+                    </button>
                 </div>
                 <div id="bottomChart" style={{ opacity }}>
                     {moods.length !== 0 ? (
