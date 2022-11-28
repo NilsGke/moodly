@@ -1,6 +1,8 @@
 import dayjs from "dayjs";
-import { Link } from "react-router-dom";
+import { useLayoutEffect, useRef } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { SharedElement } from "react-shared-element-transition";
+import { transferredState } from "../App";
 import { moodType } from "../helpers/moods";
 import "../styles/DayCard.scss";
 import MoodChart from "./MoodChart";
@@ -15,8 +17,28 @@ type props = {
 };
 
 const DayCard: React.FC<props> = ({ day }) => {
+    const { state } = useLocation();
+
+    const ref = useRef<HTMLDivElement | null>(null);
+
+    // scroll to last visited
+    useLayoutEffect(() => {
+        if (
+            (state as transferredState).scrollToDay ===
+                dayjs(new Date(day.date)).format("DDMMYYYY") &&
+            ref.current
+        )
+            ref.current.scrollIntoView({ behavior: "auto", block: "center" });
+        // disable dependencies because this should only run once
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     return (
-        <div className="cardContainer">
+        <div
+            className="cardContainer"
+            id={dayjs(new Date(day.date)).format("DDMMYYYY")}
+            ref={ref}
+        >
             <div className="cardBackgroundContainer">
                 <SharedElement
                     id={"background" + dayjs(day.date).format("DD.MM")}

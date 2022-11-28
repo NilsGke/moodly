@@ -37,6 +37,10 @@ dayjs.locale("de");
 // Display content under transparent status bar (Android only)
 StatusBar.setOverlaysWebView({ overlay: true });
 
+export type transferredState = {
+    scrollToDay?: string;
+};
+
 const App: React.FC = () => (
     <BrowserRouter>
         <Routes />
@@ -69,7 +73,19 @@ const Routes: React.FC = () => {
                             : "")
                     }
                 >
-                    <Link to={pathname === "/stats" ? "/days" : "/"}>
+                    <Link
+                        to={{
+                            pathname: pathname === "/stats" ? "/days" : "/",
+                            state: {
+                                scrollToDay:
+                                    pathname.replace("/days", "").length > 0
+                                        ? pathname
+                                              .replace("/days/", "")
+                                              .replaceAll(".", "")
+                                        : undefined,
+                            } as transferredState,
+                        }}
+                    >
                         <KeyboardArrowLeftIcon />
                     </Link>
                 </div>
