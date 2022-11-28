@@ -133,8 +133,10 @@ const MoodChart: React.FC<props> = ({
                     type="monotone"
                     dataKey="uv"
                     stroke={
-                        gradient.length === 1
-                            ? `#${gradient[0]}`
+                        gradient.length === 0
+                            ? `${moodColors.at(
+                                  (day.moods.at(0)?.mood || 4) - 1
+                              )}`
                             : `url(#${chartId})`
                     }
                     fillOpacity={1}
