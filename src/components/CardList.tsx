@@ -29,7 +29,7 @@ const CardList: React.FC<props> = ({ moods, transitionOpacity }) => {
     const elements: JSX.Element[] = [];
 
     sortedDays.forEach((day, i) => {
-        if (i != 0) {
+        if (i !== 0) {
             // if the *years* arent the same then we add a divider tag thingy
             if (
                 dayjs(sortedDays[i - 1].date).format("YY") !=
