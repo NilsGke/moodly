@@ -141,6 +141,17 @@ const DayScreen = ({
                             pathname={pathname}
                         >
                             <h2 id="date">
+                                <span
+                                    className={
+                                        "todayLabel" +
+                                        (currentDay.isSame(
+                                            dayjs(Date.now()),
+                                            "day"
+                                        )
+                                            ? " active"
+                                            : " inactive")
+                                    }
+                                ></span>
                                 {currentDay.format("dd")}{" "}
                                 {currentDay.format("DD.MM")}
                             </h2>

@@ -57,6 +57,17 @@ const DayCard: React.FC<props> = ({ day }) => {
                         pathname="/"
                     >
                         <h2 className="title">
+                            <span
+                                className={
+                                    "todayLabel" +
+                                    (dayjs(day.date).isSame(
+                                        dayjs(Date.now()),
+                                        "day"
+                                    )
+                                        ? " active"
+                                        : " inactive")
+                                }
+                            ></span>
                             {dayjs(day.date).format("dd DD.MM")}
                         </h2>
                     </SharedElement>
