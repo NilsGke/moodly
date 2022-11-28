@@ -43,7 +43,7 @@ export const setMoods = (newMoods: Array<moodType>): Promise<void> => {
 
 export const addMood = async (newMood: moodType): Promise<void> => {
     const oldMoods = getMoods();
-    newMood.id = getFreeId(oldMoods);
+    if (newMood.id === -1) newMood.id = getFreeId(oldMoods);
     moods = [...oldMoods, newMood];
     return saveMoodsToStorage();
 };
