@@ -23,6 +23,7 @@ const DayCard: React.FC<props> = ({ day }) => {
 
     // scroll to last visited
     useLayoutEffect(() => {
+        if (state === undefined) return;
         if (
             (state as transferredState).scrollToDay ===
                 dayjs(new Date(day.date)).format("DDMMYYYY") &&
