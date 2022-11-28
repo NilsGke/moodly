@@ -68,7 +68,13 @@ const DayCard: React.FC<props> = ({ day }) => {
                                         : " inactive")
                                 }
                             ></span>
-                            {dayjs(day.date).format("dd DD.MM")}
+                            {dayjs().isSame(dayjs(day.date), "day")
+                                ? "Today"
+                                : dayjs()
+                                      .add(-1, "day")
+                                      .isSame(dayjs(day.date), "day")
+                                ? "Yesterday"
+                                : dayjs(day.date).format("dd DD.MM")}
                         </h2>
                     </SharedElement>
                     <div className="chart">

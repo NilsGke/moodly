@@ -84,7 +84,11 @@ const AddMoodScreen: React.ForwardRefRenderFunction<componentProps, props> = (
             <div id="window">
                 <div id="form">
                     <label htmlFor="dateInput" id="dateLabel">
-                        {dayjs(date).format("dd DD.MM")}
+                        {dayjs().isSame(dayjs(date), "day")
+                            ? "Today"
+                            : dayjs().add(-1, "day").isSame(dayjs(date), "day")
+                            ? "Yesterday"
+                            : dayjs(date).format("dd DD.MM")}
                     </label>
                     <input
                         type="date"
