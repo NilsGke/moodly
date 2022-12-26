@@ -58,7 +58,15 @@ const AddMoodScreen: React.ForwardRefRenderFunction<componentProps, props> = (
             });
         close();
         refresh();
+        reset();
+    };
+
+    const reset = () => {
         setMoodChosen(false);
+        setMood(1);
+        setText("");
+        setDate(dayjs().valueOf());
+        setTime(dayjs().valueOf());
     };
 
     useEffect(() => {
@@ -132,42 +140,27 @@ const AddMoodScreen: React.ForwardRefRenderFunction<componentProps, props> = (
 
                     <div id="moods">
                         <div id="moodsContainer">
-                            {[1, 2, 3, 4, 5].map((a, i) => (
-                                <label
-                                    key={a}
-                                    htmlFor={"moodInput" + a}
-                                    className={
-                                        "moodCircle" +
-                                        (moodChosen && mood === a
-                                            ? " selected"
-                                            : "")
-                                    }
-                                >
-                                    {a}
-                                </label>
-                            ))}
-                        </div>
-
-                        <div id="moodsInputs">
-                            {[1, 2, 3, 4, 5].map((a, i) => (
-                                <input
-                                    key={a}
-                                    type="radio"
-                                    name={"moodInput"}
-                                    id={"moodInput" + a}
-                                    onChange={(e) => {
-                                        setMoodChosen(true);
-                                        setMood(
-                                            parseInt(
-                                                e.target.id.replace(
-                                                    "moodInput",
-                                                    ""
-                                                )
-                                            ) as moodType["mood"]
-                                        );
-                                    }}
-                                />
-                            ))}
+                            {([1, 2, 3, 4, 5] as moodType["mood"][]).map(
+                                (a) => (
+                                    <button
+                                        key={a}
+                                        name={"moodBtn" + a}
+                                        id={"moodButton" + a}
+                                        onClick={() => {
+                                            setMoodChosen(true);
+                                            setMood(a);
+                                        }}
+                                        className={
+                                            "moodCircle" +
+                                            (moodChosen && mood === a
+                                                ? " selected"
+                                                : "")
+                                        }
+                                    >
+                                        {a}
+                                    </button>
+                                )
+                            )}
                         </div>
                     </div>
 
