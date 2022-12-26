@@ -152,8 +152,11 @@ const DayScreen = ({
                                             : " inactive")
                                     }
                                 ></span>
-                                {currentDay.format("dd")}{" "}
-                                {currentDay.format("DD.MM")}
+                                {currentDay.isSame(dayjs(Date.now()), "day")
+                                    ? "Today"
+                                    : currentDay.format("dd") +
+                                      " " +
+                                      currentDay.format("DD.MM")}
                             </h2>
                         </SharedElement>
                         <div id="detailedDayChart" style={{ opacity }}>
